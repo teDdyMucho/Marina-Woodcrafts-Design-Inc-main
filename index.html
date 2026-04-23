@@ -1,0 +1,2273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Marina Woodcrafts Design Inc.</title>
+  <link rel="icon" type="image/png" href="Icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --green:       #1d3328;
+      --green-mid:   #253f30;
+      --cream:       #f5f0e8;
+      --cream-dark:  #ede8df;
+      --muted:       #4f6358;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--cream);
+      color: var(--green);
+      overflow-x: hidden;
+    }
+
+    /* ─────────────────────────────────────────
+       INTRO OVERLAY
+    ───────────────────────────────────────── */
+    body.intro-active { overflow: hidden; }
+
+    #intro-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    #intro-video {
+      width: 100vw;
+      height: auto;
+      display: block;
+      flex-shrink: 0;
+    }
+
+    #intro-skip {
+      position: absolute;
+      bottom: 32px;
+      right: 40px;
+      z-index: 3;
+      background: transparent;
+      border: 1px solid rgba(0,0,0,0.2);
+      color: rgba(0,0,0,0.4);
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 8px 20px;
+      cursor: pointer;
+    }
+    #intro-skip:hover { opacity: 0.6; }
+
+    /* Door frame animation overlay — transparent PNGs over the website */
+    #door-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    /* flex:1 makes each bar grow to fill exactly the gap between the
+       viewport edge and the door image — no fixed heights, no overlap. */
+    .door-bar {
+      flex: 1;
+      width: 100%;
+      background: #ffffff; /* overwritten by JS with last video pixel colour */
+    }
+
+    #door-frame {
+      width: 100vw;
+      height: auto;
+      display: block;
+      flex-shrink: 0;
+    }
+
+    /* ── CSS fallback door animation ──────────────────────────────
+       Used when not all 32 Door24 frames have loaded.
+       Three transparent PNGs stacked in #fb-stage; bars reuse
+       .door-bar (flex:1) since #door-fallback is also flex-column. */
+    #door-fallback {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      flex-direction: column;
+      align-items: center;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    #fb-stage {
+      position: relative;
+      width: 100vw;
+      flex-shrink: 0;
+    }
+
+    #fb-wood-frame {
+      width: 100vw;
+      height: auto;
+      display: block;
+      position: relative;
+      z-index: 1;
+    }
+
+    #fb-door-right,
+    #fb-door-left {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100vw;
+      height: auto;
+      display: block;
+    }
+    #fb-door-right { z-index: 2; }
+    #fb-door-left  { z-index: 3; }
+
+    /* Duration = 32 frames ÷ 24 fps ≈ 1333 ms — matches Door24 length */
+    #door-fallback.fb-animate #fb-wood-frame {
+      animation: fb-scale-fade 1333ms ease-in-out forwards;
+    }
+    #door-fallback.fb-animate #fb-door-left {
+      animation: fb-left-open 1333ms ease-in-out forwards;
+    }
+    #door-fallback.fb-animate #fb-door-right {
+      animation: fb-right-open 1333ms ease-in-out forwards;
+    }
+
+    @keyframes fb-scale-fade {
+      0%   { transform: scale(1);   opacity: 1; }
+      75%  { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(1.3); opacity: 0; }
+    }
+    @keyframes fb-left-open {
+      0%   { transform: scale(1)   translateX(0);     opacity: 1; }
+      75%  { transform: scale(1.3) translateX(-100%); opacity: 1; }
+      100% { transform: scale(1.3) translateX(-100%); opacity: 0; }
+    }
+    @keyframes fb-right-open {
+      0%   { transform: scale(1)   translateX(0);    opacity: 1; }
+      75%  { transform: scale(1.3) translateX(100%); opacity: 1; }
+      100% { transform: scale(1.3) translateX(100%); opacity: 0; }
+    }
+
+    /* ─────────────────────────────────────────
+       CUSTOM SCROLLBAR
+       Native scrollbar is fully hidden.
+       A fixed-position overlay replaces it.
+    ───────────────────────────────────────── */
+    html { scrollbar-width: none; }           /* Firefox */
+    ::-webkit-scrollbar { display: none; }    /* Chrome / Edge / Safari */
+
+    #custom-scrollbar {
+      position: fixed;
+      right: 6px;
+      top: 0;
+      height: 100vh;
+      width: 12px;
+      z-index: 500;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 0;
+      gap: 3px;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+    #custom-scrollbar.sb-visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #sb-up, #sb-down {
+      flex-shrink: 0;
+      width: 12px;
+      height: 12px;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--green);
+      opacity: 0.5;
+      transition: opacity 0.2s;
+    }
+    #sb-up:hover, #sb-down:hover { opacity: 1; }
+
+    #sb-track {
+      flex: 1;
+      width: 3px;
+      border-radius: 100px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    #sb-thumb {
+      position: absolute;
+      left: 0;
+      width: 3px;
+      min-height: 28px;
+      background: var(--green);
+      border-radius: 100px;
+      opacity: 0.4;
+      cursor: grab;
+      transition: opacity 0.2s, width 0.15s, left 0.15s;
+    }
+    #sb-thumb:hover, #sb-thumb.dragging {
+      opacity: 0.5;
+      width: 5px;
+      left: -1px;
+      cursor: grabbing;
+    }
+
+    /* ─────────────────────────────────────────
+       PARALLAX FOREGROUND LAYERS
+    ───────────────────────────────────────── */
+    .fg-layer {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background-repeat: repeat-y;
+      background-size: 100% auto;
+      background-position: center top;
+      pointer-events: none;
+      mix-blend-mode: multiply;
+      will-change: background-position;
+    }
+
+    /* small  = farthest  → slowest  (z 5) */
+    #fg-small  { background-image: url('foreground/small.png');  z-index: 5; opacity: 0.5; }
+    /* medium = middle    → medium   (z 6) */
+    #fg-medium { background-image: url('foreground/medium.png'); z-index: 6; opacity: 0.5; }
+    /* big    = nearest   → fastest  (z 7) */
+    #fg-big    { background-image: url('foreground/big.png');    z-index: 7; opacity: 0.5; }
+
+
+    /* ─────────────────────────────────────────
+       NAVBAR
+    ───────────────────────────────────────── */
+    #nav {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      z-index: 200;
+      padding: 28px 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.45s ease, padding 0.45s ease, backdrop-filter 0.45s ease;
+    }
+
+    #nav.scrolled {
+      background: rgba(29, 51, 40, 0.92);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      padding: 16px 64px;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .nav-icon {
+      height: 34px;
+      width: auto;
+      filter: brightness(0) invert(1);
+      opacity: 0.92;
+    }
+
+    .nav-wordmark {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(245, 240, 232, 0.9);
+      line-height: 1.3;
+    }
+
+    .nav-wordmark span {
+      display: block;
+      font-weight: 300;
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      opacity: 0.65;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 44px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: rgba(245, 240, 232, 0.82);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      transition: opacity 0.2s;
+    }
+    .nav-links a:hover { opacity: 0.5; }
+
+    /* ─────────────────────────────────────────
+       HERO
+    ───────────────────────────────────────── */
+    #hero {
+      position: relative;
+      min-height: 100vh;
+      background: var(--green);
+      background-image: url('Background.jpg');
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    #hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--green);
+      opacity: 0.88;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 10;
+      padding: 0 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .hero-logo {
+      width: 200px;
+      height: auto;
+      margin-bottom: 36px;
+      filter: brightness(0) invert(1);
+      opacity: 0.95;
+    }
+
+    .hero-eyebrow {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: rgba(245, 240, 232, 0.5);
+      margin-bottom: 22px;
+    }
+
+    .hero-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.8rem, 7vw, 6rem);
+      font-weight: 400;
+      color: var(--cream);
+      line-height: 1.12;
+      letter-spacing: -0.01em;
+      margin-bottom: 28px;
+    }
+
+    .hero-headline em {
+      font-style: italic;
+      font-weight: 400;
+    }
+
+    .hero-sub {
+      font-size: clamp(0.8rem, 1.4vw, 0.95rem);
+      font-weight: 300;
+      letter-spacing: 0.08em;
+      color: rgba(245, 240, 232, 0.6);
+      max-width: 480px;
+      line-height: 1.8;
+      margin-bottom: 48px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 14px 44px;
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+    }
+
+    .btn-outline-light {
+      background: transparent;
+      border: 1px solid rgba(245, 240, 232, 0.4);
+      color: var(--cream);
+    }
+    .btn-outline-light:hover {
+      background: rgba(245, 240, 232, 0.1);
+      border-color: rgba(245, 240, 232, 0.8);
+    }
+
+    .btn-solid {
+      background: var(--green);
+      color: var(--cream);
+      border: 1px solid var(--green);
+    }
+    .btn-solid:hover {
+      background: var(--green-mid);
+      border-color: var(--green-mid);
+    }
+
+    .btn-outline-dark {
+      background: transparent;
+      border: 1px solid rgba(29, 51, 40, 0.35);
+      color: var(--green);
+    }
+    .btn-outline-dark:hover {
+      background: var(--green);
+      color: var(--cream);
+      border-color: var(--green);
+    }
+
+    .scroll-cue {
+      position: absolute;
+      bottom: 44px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      color: rgba(245, 240, 232, 0.35);
+      font-size: 8px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+    }
+
+    .scroll-cue-line {
+      width: 1px;
+      height: 52px;
+      background: linear-gradient(to bottom, rgba(245,240,232,0.5), transparent);
+      animation: cueDown 2s ease-in-out infinite;
+    }
+
+    @keyframes cueDown {
+      0%   { transform: scaleY(0); transform-origin: top; opacity: 0; }
+      40%  { transform: scaleY(1); transform-origin: top; opacity: 1; }
+      41%  { transform-origin: bottom; }
+      100% { transform: scaleY(0); transform-origin: bottom; opacity: 0; }
+    }
+
+    /* ─────────────────────────────────────────
+       SHARED SECTION
+    ───────────────────────────────────────── */
+    .section { position: relative; }
+
+    .wrap {
+      position: relative;
+      z-index: 10;
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 130px 64px;
+    }
+
+    .eyebrow {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--muted);
+      opacity: 0.55;
+      margin-bottom: 18px;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4.5vw, 3.8rem);
+      font-weight: 400;
+      line-height: 1.18;
+      color: var(--green);
+    }
+
+    .section-title-light { color: var(--cream); }
+    .eyebrow-light { color: rgba(245,240,232,0.45); opacity: 1; }
+
+    /* ─────────────────────────────────────────
+       ABOUT
+    ───────────────────────────────────────── */
+    #about { background: var(--cream); }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 90px;
+      align-items: center;
+      margin-top: 64px;
+    }
+
+    .about-body p {
+      font-size: 1rem;
+      line-height: 1.9;
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+
+    .about-img {
+      position: relative;
+      aspect-ratio: 5/4;
+      background: var(--green);
+      overflow: hidden;
+    }
+
+    .about-img::after {
+      content: '';
+      position: absolute;
+      inset: 16px 0 0 16px;
+      border: 1px solid rgba(29,51,40,0.18);
+      pointer-events: none;
+    }
+
+    .about-img img,
+    .about-img video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .about-stats {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 40px;
+      margin-top: 80px;
+      padding-top: 64px;
+      border-top: 1px solid rgba(29,51,40,0.12);
+    }
+
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.2rem;
+      font-weight: 400;
+      color: var(--green);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+
+    /* ─────────────────────────────────────────
+       SERVICES
+    ───────────────────────────────────────── */
+    #services { background: var(--cream-dark); }
+
+    .services-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 32px;
+      margin-bottom: 64px;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+
+    .service-card {
+      background: var(--cream);
+      padding: 52px 42px;
+      cursor: default;
+      transition: background 0.35s, color 0.35s;
+    }
+
+    .service-card:hover { background: var(--green); }
+
+    .svc-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: rgba(29,51,40,0.2);
+      margin-bottom: 32px;
+      transition: color 0.35s;
+    }
+    .service-card:hover .svc-num { color: rgba(245,240,232,0.25); }
+
+    .svc-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.45rem;
+      font-weight: 500;
+      color: var(--green);
+      margin-bottom: 14px;
+      transition: color 0.35s;
+    }
+    .service-card:hover .svc-title { color: var(--cream); }
+
+    .svc-desc {
+      font-size: 0.88rem;
+      line-height: 1.8;
+      color: var(--muted);
+      transition: color 0.35s;
+    }
+    .service-card:hover .svc-desc { color: rgba(245,240,232,0.65); }
+
+    .services-disclaimer {
+      margin-top: 20px;
+      max-width: 36rem;
+      font-size: 0.78rem;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    /* ─────────────────────────────────────────
+       GALLERY
+    ───────────────────────────────────────── */
+    #gallery { background: var(--green); }
+
+    .gallery-meta {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 32px;
+      margin-bottom: 64px;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: 320px 260px;
+      gap: 2px;
+    }
+
+    .g-item {
+      position: relative;
+      background: rgba(245,240,232,0.06);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s;
+      cursor: pointer;
+    }
+
+    .g-item:hover { background: rgba(245,240,232,0.11); }
+
+    .g-item:first-child { grid-column: span 2; }
+
+    .g-item-label {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 36px 22px 18px;
+      background: linear-gradient(to top, rgba(10,20,14,0.72), transparent);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .g-item-name {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(245,240,232,0.88);
+    }
+
+    .g-item-hint {
+      font-size: 8px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(245,240,232,0.38);
+      margin-top: 4px;
+    }
+
+    /* ─────────────────────────────────────────
+       GALLERY MODALS
+    ───────────────────────────────────────── */
+    .gallery-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+    .gallery-modal.open { display: flex; }
+
+    .modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(10,20,14,0.88);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      cursor: pointer;
+    }
+
+    .modal-box {
+      position: relative;
+      z-index: 1;
+      background: var(--cream);
+      width: min(900px, 92vw);
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      flex-shrink: 0;
+      padding: 28px 36px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(29,51,40,0.1);
+    }
+
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.45rem;
+      font-weight: 400;
+      color: var(--green);
+    }
+
+    .modal-close {
+      flex-shrink: 0;
+      background: none;
+      border: none;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--green);
+      opacity: 0.35;
+      transition: opacity 0.2s;
+    }
+    .modal-close:hover { opacity: 1; }
+
+    .modal-body {
+      overflow-y: auto;
+      padding: 28px 36px 36px;
+      scrollbar-width: none;
+    }
+    .modal-body::-webkit-scrollbar { display: none; }
+
+    .modal-photo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+    }
+
+    .modal-photo {
+      aspect-ratio: 4/3;
+      background: rgba(29,51,40,0.08);
+      overflow: hidden;
+      cursor: zoom-in;
+    }
+
+    .modal-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+    .modal-photo:hover img { transform: scale(1.06); }
+
+    .modal-empty-state {
+      padding: 64px 0;
+      text-align: center;
+      font-size: 9px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: rgba(29,51,40,0.28);
+    }
+
+    /* ─────────────────────────────────────────
+       LIGHTBOX
+    ───────────────────────────────────────── */
+    #lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 3000;
+      background: rgba(6,12,8,0.96);
+      align-items: center;
+      justify-content: center;
+    }
+    #lightbox.open { display: flex; }
+
+    #lightbox-img {
+      max-width: calc(100vw - 160px);
+      max-height: calc(100vh - 80px);
+      object-fit: contain;
+      display: block;
+      user-select: none;
+      transition: opacity 0.2s ease;
+    }
+    #lightbox-img.fading { opacity: 0; }
+
+    #lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      background: none;
+      border: none;
+      color: rgba(245,240,232,0.55);
+      cursor: pointer;
+      padding: 8px;
+      transition: color 0.2s;
+      line-height: 0;
+    }
+    #lightbox-close:hover { color: rgba(245,240,232,1); }
+
+    .lightbox-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(245,240,232,0.08);
+      border: 1px solid rgba(245,240,232,0.14);
+      color: rgba(245,240,232,0.75);
+      width: 48px;
+      height: 48px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, color 0.2s;
+    }
+    .lightbox-nav:hover { background: rgba(245,240,232,0.18); color: #fff; }
+    #lightbox-prev { left: 20px; }
+    #lightbox-next { right: 20px; }
+
+    #lightbox-counter {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      letter-spacing: 0.22em;
+      color: rgba(245,240,232,0.35);
+      pointer-events: none;
+    }
+
+    @media (max-width: 600px) {
+      #lightbox-img {
+        max-width: 100vw;
+        max-height: calc(100vh - 120px);
+      }
+      .lightbox-nav {
+        top: auto;
+        bottom: 44px;
+        transform: none;
+        width: 44px;
+        height: 44px;
+        background: rgba(245,240,232,0.12);
+      }
+      #lightbox-prev { left: calc(50% - 52px); }
+      #lightbox-next { right: calc(50% - 52px); }
+      #lightbox-counter { bottom: 14px; }
+    }
+
+    /* ─────────────────────────────────────────
+       GALLERY THUMBNAILS & INLINE SLIDESHOW
+    ───────────────────────────────────────── */
+    .g-thumb {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+    .g-item:hover .g-thumb { transform: scale(1.04); }
+
+    .g-slides {
+      position: absolute;
+      inset: 0;
+    }
+
+    .g-slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.9s ease;
+    }
+    .g-slide.active { opacity: 1; }
+
+    .g-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .g-slide-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(10,20,14,0.45);
+      border: 1px solid rgba(245,240,232,0.18);
+      color: rgba(245,240,232,0.85);
+      width: 34px;
+      height: 34px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 3;
+      opacity: 0;
+      transition: opacity 0.2s, background 0.2s;
+      pointer-events: none;
+    }
+    #g-featured:hover .g-slide-btn {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .g-slide-btn:hover { background: rgba(10,20,14,0.75); }
+    #g-slide-prev { left: 12px; }
+    #g-slide-next { right: 12px; }
+
+    .g-slide-counter {
+      position: absolute;
+      bottom: 14px;
+      right: 16px;
+      font-size: 8px;
+      letter-spacing: 0.16em;
+      color: rgba(245,240,232,0.38);
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    /* ─────────────────────────────────────────
+       CONTACT
+    ───────────────────────────────────────── */
+    #contact { background: var(--cream); }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 100px;
+      margin-top: 64px;
+    }
+
+    .contact-info p {
+      font-size: 0.95rem;
+      line-height: 1.9;
+      color: var(--muted);
+      margin-bottom: 44px;
+    }
+
+    .cinfo-item { margin-bottom: 26px; }
+
+    .cinfo-label {
+      font-size: 9px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--muted);
+      opacity: 0.5;
+      margin-bottom: 5px;
+    }
+
+    .cinfo-value {
+      font-size: 0.95rem;
+      color: var(--green);
+      font-weight: 400;
+    }
+
+    .cinfo-link {
+      text-decoration: none;
+      border-bottom: none;
+      transition: opacity 0.2s;
+      display: inline-block;
+    }
+    .cinfo-link:hover { opacity: 0.65; }
+
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .field { display: flex; flex-direction: column; gap: 8px; }
+
+    .field label {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(29,51,40,0.45);
+    }
+
+    .field input,
+    .field textarea,
+    .field select {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      color: var(--green);
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(29,51,40,0.22);
+      padding: 10px 0;
+      outline: none;
+      transition: border-color 0.25s;
+      -webkit-appearance: none;
+    }
+
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus { border-color: var(--green); }
+
+    .field textarea { resize: none; height: 90px; }
+
+    /* ─────────────────────────────────────────
+       FOOTER
+    ───────────────────────────────────────── */
+    footer {
+      position: relative;
+      z-index: 10;
+      background: var(--green);
+      padding: 52px 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .footer-brand-text {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .footer-icon {
+      height: 30px;
+      filter: brightness(0) invert(1);
+      opacity: 0.6;
+    }
+
+    .footer-name {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(245,240,232,0.55);
+    }
+
+    .footer-name-sub {
+      font-size: 8px;
+      font-weight: 300;
+      letter-spacing: 0.48em;
+      text-transform: uppercase;
+      color: rgba(245,240,232,0.5);
+      line-height: 1.2;
+    }
+
+    .footer-legal {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+      text-align: right;
+    }
+
+    .footer-copy {
+      font-size: 10px;
+      color: rgba(245,240,232,0.3);
+      letter-spacing: 0.06em;
+    }
+
+    .footer-credit {
+      font-size: 10px;
+      color: rgba(245,240,232,0.3);
+      letter-spacing: 0.06em;
+    }
+
+    /* ─────────────────────────────────────────
+       SCROLL REVEAL
+    ───────────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.9s ease, transform 0.9s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+    .reveal-delay-5 { transition-delay: 0.5s; }
+
+    /* ─────────────────────────────────────────
+       DIVIDER
+    ───────────────────────────────────────── */
+    .line-divider {
+      width: 40px;
+      height: 1px;
+      background: rgba(29,51,40,0.25);
+      margin: 20px 0 0;
+    }
+
+    .line-divider-light {
+      background: rgba(245,240,232,0.25);
+    }
+
+    /* ─────────────────────────────────────────
+       HAMBURGER MENU (mobile nav)
+    ───────────────────────────────────────── */
+    #nav-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      width: 36px;
+      height: 36px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      z-index: 201;
+    }
+
+    #nav-toggle span {
+      display: block;
+      width: 22px;
+      height: 1.5px;
+      background: rgba(245,240,232,0.9);
+      border-radius: 2px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      transform-origin: center;
+    }
+
+    #nav-toggle.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    #nav-toggle.open span:nth-child(2) { opacity: 0; }
+    #nav-toggle.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+    #mobile-nav {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 190;
+      background: rgba(29,51,40,0.97);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 36px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    #mobile-nav.open {
+      opacity: 1;
+    }
+
+    #mobile-nav a {
+      text-decoration: none;
+      color: rgba(245,240,232,0.85);
+      font-size: 1.5rem;
+      font-family: 'Playfair Display', serif;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      transition: opacity 0.2s;
+    }
+    #mobile-nav a:hover { opacity: 0.55; }
+
+    /* ─────────────────────────────────────────
+       RESPONSIVE — TABLET  (≤ 900px)
+    ───────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .wrap { padding: 90px 40px; }
+
+      #nav { padding: 22px 32px; }
+      #nav.scrolled { padding: 14px 32px; }
+
+      .about-grid {
+        grid-template-columns: 1fr;
+        gap: 48px;
+        margin-top: 48px;
+      }
+
+      .about-img { order: -1; }
+
+      .about-stats { grid-template-columns: repeat(3,1fr); gap: 24px; margin-top: 60px; padding-top: 48px; }
+
+      .services-grid { grid-template-columns: repeat(2, 1fr); }
+
+      .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: auto;
+      }
+      .g-item:first-child { grid-column: span 2; min-height: 280px; }
+      .g-item { min-height: 200px; }
+
+      .contact-grid { grid-template-columns: 1fr; gap: 56px; }
+
+      footer { padding: 40px 32px; }
+
+      .modal-photo-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* ─────────────────────────────────────────
+       RESPONSIVE — MOBILE  (≤ 600px)
+    ───────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .wrap { padding: 72px 20px; }
+
+      #nav { padding: 18px 20px; }
+      #nav.scrolled { padding: 12px 20px; }
+
+      /* Show hamburger, hide desktop links */
+      #nav-toggle { display: flex; }
+      .nav-links { display: none !important; }
+
+      /* Show mobile nav when open */
+      #mobile-nav { display: flex; }
+
+      .nav-wordmark { font-size: 10px; }
+
+      .hero-logo { width: 140px; margin-bottom: 24px; }
+      .hero-headline { font-size: clamp(2.2rem, 10vw, 3.2rem); }
+      .hero-sub { font-size: 0.85rem; max-width: 90%; }
+      .hero-sub br { display: none; }
+      .btn { padding: 13px 32px; font-size: 9px; }
+
+      .about-grid { gap: 36px; margin-top: 36px; }
+      .about-stats { grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 48px; padding-top: 36px; }
+      .stat-num { font-size: 2.2rem; }
+      .stat-label { font-size: 8px; }
+
+      .services-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+      .services-grid { grid-template-columns: 1fr; }
+      .service-card { padding: 36px 28px; }
+
+      .gallery-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+      }
+      .g-item:first-child { grid-column: span 1; min-height: 240px; }
+      .g-item { min-height: 180px; }
+
+      .gallery-meta { flex-direction: column; align-items: flex-start; gap: 20px; }
+
+      .contact-grid { gap: 40px; margin-top: 48px; }
+      .contact-info p { font-size: 0.88rem; margin-bottom: 32px; }
+
+      footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+        padding: 36px 20px;
+      }
+      .footer-legal { align-items: flex-start; text-align: left; }
+
+      .modal-box { width: 96vw; max-height: 92vh; }
+      .modal-header { padding: 20px 20px 16px; }
+      .modal-body { padding: 20px 20px 28px; }
+      .modal-photo-grid { grid-template-columns: repeat(2, 1fr); }
+
+      /* Hide custom scrollbar on touch/mobile */
+      #custom-scrollbar { display: none !important; }
+    }
+
+    /* Extra-small (≤ 380px) */
+    @media (max-width: 380px) {
+      .about-stats { grid-template-columns: 1fr; gap: 24px; }
+      .modal-photo-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       INTRO OVERLAY
+  ═══════════════════════════════════════ -->
+  <div id="intro-overlay">
+    <video id="intro-video" muted playsinline preload="auto">
+      <source src="Intro%20Animation/intro.aep_AME/Intro_v3.mp4" type="video/mp4" />
+    </video>
+    <button id="intro-skip">Skip</button>
+  </div>
+
+  <!-- Door animation overlay — shown after video ends, above the website -->
+  <div id="door-overlay">
+    <div class="door-bar" id="door-bar-top"></div>
+    <img id="door-frame" src="" alt="" />
+    <div class="door-bar" id="door-bar-bottom"></div>
+  </div>
+
+  <!-- CSS fallback — used when Door24 frames haven't fully loaded -->
+  <div id="door-fallback">
+    <div class="door-bar" id="fb-bar-top"></div>
+    <div id="fb-stage">
+      <img id="fb-wood-frame" src="Intro%20Animation/wood%20frame.png" alt="" />
+      <img id="fb-door-right" src="Intro%20Animation/door%20right.png" alt="" />
+      <img id="fb-door-left"  src="Intro%20Animation/door%20left.png"  alt="" />
+    </div>
+    <div class="door-bar" id="fb-bar-bottom"></div>
+  </div>
+
+  <!-- Custom scrollbar overlay -->
+  <div id="custom-scrollbar">
+    <button id="sb-up" aria-label="Scroll up">
+      <svg width="8" height="6" viewBox="0 0 8 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 0.5L7.5 5.5H0.5L4 0.5Z" fill="currentColor"/>
+      </svg>
+    </button>
+    <div id="sb-track">
+      <div id="sb-thumb"></div>
+    </div>
+    <button id="sb-down" aria-label="Scroll down">
+      <svg width="8" height="6" viewBox="0 0 8 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 5.5L0.5 0.5H7.5L4 5.5Z" fill="currentColor"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       PARALLAX FOREGROUND LAYERS
+       mix-blend-mode: multiply makes the
+       white BG invisible; only the dark
+       speckles overlay the content.
+  ═══════════════════════════════════════ -->
+  <div class="fg-layer" id="fg-small"></div>
+  <div class="fg-layer" id="fg-medium"></div>
+  <div class="fg-layer" id="fg-big"></div>
+
+  <!-- ═══════════════════════════════════════
+       NAVIGATION
+  ═══════════════════════════════════════ -->
+  <nav id="nav">
+    <a href="#hero" class="nav-brand">
+      <img src="Icon.png" alt="MW" class="nav-icon" />
+      <div class="nav-wordmark">
+        Marina Woodcrafts
+        <span>Design Inc.</span>
+      </div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button id="nav-toggle" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- Mobile nav overlay -->
+  <div id="mobile-nav" role="dialog" aria-label="Navigation menu">
+    <a href="#about"    id="mnav-about">About</a>
+    <a href="#services" id="mnav-services">Services</a>
+    <a href="#gallery"  id="mnav-gallery">Gallery</a>
+    <a href="#contact"  id="mnav-contact">Contact</a>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       HERO
+  ═══════════════════════════════════════ -->
+  <section id="hero">
+    <div class="hero-inner">
+      <img
+        src="Icon.png"
+        alt="Marina Woodcrafts"
+        class="hero-logo"
+      />
+      <p class="hero-eyebrow">Handcrafted with Purpose</p>
+      <h1 class="hero-headline">
+        Where Wood<br />Becomes <em>Art</em>
+      </h1>
+      <p class="hero-sub">
+        Custom woodcraft and interior design rooted in tradition,<br />
+        crafted for the spaces where life happens.
+      </p>
+      <a href="#about" class="btn btn-outline-light">Discover Our Work</a>
+    </div>
+    <div class="scroll-cue">
+      <span>Scroll</span>
+      <div class="scroll-cue-line"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       ABOUT
+  ═══════════════════════════════════════ -->
+  <section id="about" class="section">
+    <div class="wrap">
+      <p class="eyebrow reveal">Our Story</p>
+      <h2 class="section-title reveal">
+        Crafted with tradition,<br />designed for today.
+      </h2>
+      <div class="line-divider reveal"></div>
+
+      <div class="about-grid">
+        <div class="about-body">
+          <p class="reveal reveal-delay-1">
+            Marina Woodcrafts Design Inc was built on a passion for craftsmanship and high-quality woodworking.
+            The company started with a focus on delivering custom cabinetry solutions tailored to each client’s
+            unique space and needs.
+          </p>
+          <p class="reveal reveal-delay-2">
+            Over time, it has grown into a trusted provider of custom kitchens, bathroom vanities, closets, and countertops,
+            known for precision, durability, and refined design. Every project is approached with attention to detail, ensuring
+            both functionality and aesthetic value.
+          </p>
+          <a href="#services" class="btn btn-solid reveal reveal-delay-3" style="margin-top: 12px;">
+            Our Services
+          </a>
+        </div>
+        <div class="about-img reveal reveal-delay-1">
+          <video autoplay muted loop playsinline>
+            <source src="Our%20Story/Our%20Story.mp4" type="video/mp4" />
+          </video>
+        </div>
+      </div>
+
+      <div class="about-stats">
+        <div class="reveal">
+          <div class="stat-num">25+</div>
+          <div class="stat-label">Years of Experience</div>
+        </div>
+        <div class="reveal reveal-delay-1">
+          <div class="stat-num">100+</div>
+          <div class="stat-label">Projects Completed</div>
+        </div>
+        <div class="reveal reveal-delay-2">
+          <div class="stat-num">100%</div>
+          <div class="stat-label">Handcrafted</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       SERVICES
+  ═══════════════════════════════════════ -->
+  <section id="services" class="section">
+    <div class="wrap">
+      <div class="services-header">
+        <div>
+          <p class="eyebrow reveal">What We Do</p>
+          <h2 class="section-title reveal">
+            Craftsmanship in<br />every detail.
+          </h2>
+        </div>
+        <a href="#contact" class="btn btn-outline-dark reveal">Start a Project</a>
+      </div>
+
+      <div class="services-grid">
+        <div class="service-card reveal">
+          <div class="svc-num">01</div>
+          <h3 class="svc-title">Custom Kitchen Cabinetry</h3>
+          <p class="svc-desc">
+            Designed and built to fit your kitchen layout with precision, combining
+            functionality and modern aesthetics.
+          </p>
+        </div>
+        <div class="service-card reveal reveal-delay-1">
+          <div class="svc-num">02</div>
+          <h3 class="svc-title">Bathroom Vanities</h3>
+          <p class="svc-desc">
+            Custom-built vanities tailored to maximize space while maintaining
+            a clean and elegant look.
+          </p>
+        </div>
+        <div class="service-card reveal reveal-delay-2">
+          <div class="svc-num">03</div>
+          <h3 class="svc-title">Closets & Storage Solutions</h3>
+          <p class="svc-desc">
+            Efficient and stylish storage systems designed to match your lifestyle
+            and space requirements.
+          </p>
+        </div>
+        <div class="service-card reveal reveal-delay-1">
+          <div class="svc-num">04</div>
+          <h3 class="svc-title">Bookcases & Built-ins</h3>
+          <p class="svc-desc">
+            Custom shelving and built-in units for both decorative and functional
+            purposes.
+          </p>
+        </div>
+        <div class="service-card reveal reveal-delay-2">
+          <div class="svc-num">05</div>
+          <h3 class="svc-title">Countertops</h3>
+          <p class="svc-desc">
+            Installation of high-quality materials including Granite, Caesarstone,
+            and Butcher Block.
+          </p>
+        </div>
+      </div>
+      <p class="services-disclaimer reveal">
+        Pricing available upon request depending on design, materials, and project scope.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       GALLERY
+  ═══════════════════════════════════════ -->
+  <section id="gallery" class="section">
+    <div class="wrap">
+      <div class="gallery-meta">
+        <div>
+          <p class="eyebrow eyebrow-light reveal">Portfolio</p>
+          <h2 class="section-title section-title-light reveal">Our Work</h2>
+          <div class="line-divider line-divider-light reveal"></div>
+        </div>
+        <a href="#contact" class="btn btn-outline-light reveal">Commission a Piece</a>
+      </div>
+
+      <div class="gallery-grid">
+
+        <!-- Featured: inline crossfade slideshow of all photos -->
+        <div class="g-item reveal" id="g-featured">
+          <div class="g-slides" id="g-featured-slides"></div>
+          <button class="g-slide-btn" id="g-slide-prev" aria-label="Previous">
+            <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1L1 6L6 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="g-slide-btn" id="g-slide-next" aria-label="Next">
+            <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1L6 6L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="g-item-label">
+            <div class="g-item-name">Featured Projects</div>
+            <div class="g-item-hint">All collections</div>
+          </div>
+          <div class="g-slide-counter" id="g-slide-counter"></div>
+        </div>
+
+        <div class="g-item reveal reveal-delay-1" data-gallery="bathroom">
+          <img class="g-thumb" src="Gallery/Bathroom%20Vanities/1.png" alt="Bathroom Vanities" />
+          <div class="g-item-label">
+            <div class="g-item-name">Bathroom Vanities</div>
+          </div>
+        </div>
+        <div class="g-item reveal reveal-delay-1" data-gallery="kitchen">
+          <img class="g-thumb" src="Gallery/Custom%20Kitchen%20Cabinetry/1.png" alt="Kitchen Cabinetry" />
+          <div class="g-item-label">
+            <div class="g-item-name">Kitchen Cabinetry</div>
+          </div>
+        </div>
+        <div class="g-item reveal reveal-delay-2" data-gallery="bedroom">
+          <img class="g-thumb" src="Gallery/Bedroom%20Closets%20&amp;%20Storage/1.png" alt="Bedroom Closets & Storage" />
+          <div class="g-item-label">
+            <div class="g-item-name">Bedroom Closets & Storage</div>
+          </div>
+        </div>
+        <div class="g-item reveal reveal-delay-3" data-gallery="living">
+          <img class="g-thumb" src="Gallery/Living-Area-Cabinet-Shelves/1.png" alt="Living Area Cabinet & Shelves" />
+          <div class="g-item-label">
+            <div class="g-item-name">Living Area Cabinet & Shelves</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       CONTACT
+  ═══════════════════════════════════════ -->
+  <section id="contact" class="section">
+    <div class="wrap">
+      <p class="eyebrow reveal">Get in Touch</p>
+      <h2 class="section-title reveal">
+        Let's build something<br />beautiful together.
+      </h2>
+      <div class="line-divider reveal"></div>
+
+      <div class="contact-grid">
+        <div class="contact-info">
+          <p class="reveal reveal-delay-1">
+            Let’s bring your vision to life with cabinetry and countertop solutions designed specifically for your space. If you’re looking for quality craftsmanship, precise fit, and a seamless experience from design to installation, our team is here to help.
+          </p>
+          <div class="cinfo-item reveal reveal-delay-2">
+            <div class="cinfo-label">Email</div>
+            <a class="cinfo-value cinfo-link" href="mailto:Marinawoodcraftsdesign@hotmail.com">Marinawoodcraftsdesign@hotmail.com</a>
+          </div>
+          <div class="cinfo-item reveal reveal-delay-3">
+            <div class="cinfo-label">Studio</div>
+            <a class="cinfo-value cinfo-link" href="https://www.google.com/maps/search/?api=1&query=20857+Martha+St+Woodland+Hills+CA+91367" target="_blank" rel="noopener noreferrer">20857 Martha St Woodland Hills, CA 91367</a>
+          </div>
+        </div>
+
+        <form class="contact-form reveal reveal-delay-1" onsubmit="handleSubmit(event)">
+          <div class="field">
+            <label for="name">Your Name</label>
+            <input id="name" type="text" placeholder="Full name" required />
+          </div>
+          <div class="field">
+            <label for="email">Email Address</label>
+            <input id="email" type="email" placeholder="you@email.com" required />
+          </div>
+          <div class="field">
+            <label for="service">Service of Interest</label>
+            <select id="service">
+              <option value="">Select a service…</option>
+              <option>Custom Kitchen Cabinetry</option>
+              <option>Bathroom Vanities</option>
+              <option>Closets & Storage Solutions</option>
+              <option>Bookcases & Built-ins</option>
+              <option>Countertops</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="message">Message</label>
+            <textarea id="message" placeholder="Tell us about your project…" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-solid" style="align-self: flex-start;">
+            Send Message
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       FOOTER
+  ═══════════════════════════════════════ -->
+  <footer>
+    <div class="footer-brand">
+      <img src="Icon.png" alt="MW" class="footer-icon" />
+      <div class="footer-brand-text">
+        <span class="footer-name">Marina Woodcrafts</span>
+        <span class="footer-name-sub">Design Inc.</span>
+      </div>
+    </div>
+    <div class="footer-legal">
+      <p class="footer-copy">© 2025 Marina Woodcrafts Design Inc. All rights reserved.</p>
+      <p class="footer-credit">Website by Paldz</p>
+    </div>
+  </footer>
+
+  <!-- ═══════════════════════════════════════
+       GALLERY MODALS
+  ═══════════════════════════════════════ -->
+
+  <!-- Bathroom Vanities -->
+  <div class="gallery-modal" id="modal-bathroom">
+    <div class="modal-backdrop"></div>
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">Bathroom Vanities</h3>
+        <button class="modal-close" aria-label="Close">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-photo-grid" id="modal-grid-bathroom"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kitchen Cabinetry -->
+  <div class="gallery-modal" id="modal-kitchen">
+    <div class="modal-backdrop"></div>
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">Custom Kitchen Cabinetry</h3>
+        <button class="modal-close" aria-label="Close">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-photo-grid" id="modal-grid-kitchen"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bedroom Closets & Storage -->
+  <div class="gallery-modal" id="modal-bedroom">
+    <div class="modal-backdrop"></div>
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">Bedroom Closets & Storage</h3>
+        <button class="modal-close" aria-label="Close">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-photo-grid" id="modal-grid-bedroom"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Living Area Cabinet & Shelves -->
+  <div class="gallery-modal" id="modal-living">
+    <div class="modal-backdrop"></div>
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">Living Area Cabinet & Shelves</h3>
+        <button class="modal-close" aria-label="Close">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-photo-grid" id="modal-grid-living"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       LIGHTBOX
+  ═══════════════════════════════════════ -->
+  <div id="lightbox">
+    <button id="lightbox-close" aria-label="Close lightbox">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M1 1L17 17M17 1L1 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+    <button class="lightbox-nav" id="lightbox-prev" aria-label="Previous image">
+      <svg width="9" height="16" viewBox="0 0 9 16" fill="none"><path d="M8 1L1 8L8 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <img id="lightbox-img" src="" alt="" />
+    <button class="lightbox-nav" id="lightbox-next" aria-label="Next image">
+      <svg width="9" height="16" viewBox="0 0 9 16" fill="none"><path d="M1 1L8 8L1 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div id="lightbox-counter"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       JAVASCRIPT
+  ═══════════════════════════════════════ -->
+  <script>
+    // ── Intro overlay ───────────────────────────────────────────
+    (function () {
+      const overlay    = document.getElementById('intro-overlay');
+      const video      = document.getElementById('intro-video');
+      const skipBtn    = document.getElementById('intro-skip');
+      const doorOverlay = document.getElementById('door-overlay');
+      const doorFrame   = document.getElementById('door-frame');
+
+      document.body.classList.add('intro-active');
+
+      // ── Preload all 32 Door24 frames; track how many finish ────
+      const DOOR_COUNT   = 32;
+      const MS_PER_FRAME = 1000 / 24; // 24 fps ≈ 41.7 ms/frame
+      const doorSrcs = Array.from({ length: DOOR_COUNT }, (_, i) => {
+        const n = String(i).padStart(5, '0');
+        return `Intro%20Animation/intro.aep_AME/Door24/Door24_${n}.png`;
+      });
+      let loadedCount = 0;
+      doorSrcs.forEach(src => {
+        const img = new Image();
+        img.onload = () => loadedCount++;
+        img.src = src;
+      });
+
+      // ── Pixel sampler: top-left pixel → overlay background ─────
+      const canvas = document.createElement('canvas');
+      canvas.width = 1; canvas.height = 1;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      let sampling = false;
+
+      function sampleTopLeft() {
+        if (!sampling) return;
+        try {
+          ctx.drawImage(video, 0, 0, 1, 1, 0, 0, 1, 1);
+          const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+          overlay.style.background = `rgb(${r},${g},${b})`;
+        } catch (_) {}
+        requestAnimationFrame(sampleTopLeft);
+      }
+
+      // ── Door animation — branches to frame sequence or CSS fallback ──
+      function startDoors() {
+        const barColor = overlay.style.background || '#ffffff';
+
+        // Remove intro overlay — website becomes visible under whichever
+        // door animation runs next (no gap between phases)
+        overlay.remove();
+        document.body.classList.remove('intro-active');
+
+        if (loadedCount === DOOR_COUNT) {
+          // ── All 32 frames loaded: play Door24 frame sequence ──
+          document.getElementById('door-bar-top').style.background    = barColor;
+          document.getElementById('door-bar-bottom').style.background = barColor;
+          doorFrame.src = doorSrcs[0];
+          doorOverlay.style.display = 'flex';
+
+          let idx = 1;
+          const tick = setInterval(() => {
+            if (idx >= DOOR_COUNT) { clearInterval(tick); doorOverlay.remove(); return; }
+            doorFrame.src = doorSrcs[idx++];
+          }, MS_PER_FRAME);
+
+        } else {
+          // ── Fallback: CSS-animated 3-layer door open ──
+          const fbOverlay = document.getElementById('door-fallback');
+          document.getElementById('fb-bar-top').style.background    = barColor;
+          document.getElementById('fb-bar-bottom').style.background = barColor;
+          fbOverlay.style.display = 'flex';
+          // Trigger animations on next frame so display:flex settles first
+          requestAnimationFrame(() => fbOverlay.classList.add('fb-animate'));
+          setTimeout(() => fbOverlay.remove(), 1333 + 100);
+        }
+      }
+
+      // ── Dismiss: stop video, start doors ──────────────────────
+      let dismissed = false;
+      function dismiss() {
+        if (dismissed) return;
+        dismissed = true;
+        sampling = false;
+        video.pause();
+        startDoors();
+      }
+
+      // ── Trigger dismiss when video ends ───────────────────────
+      video.addEventListener('ended', dismiss);
+      video.addEventListener('loadedmetadata', () => {
+        setTimeout(dismiss, video.duration * 1000);
+      });
+
+      // Start pixel sampler once frames are available
+      video.addEventListener('canplay', () => {
+        if (!sampling) { sampling = true; requestAnimationFrame(sampleTopLeft); }
+      });
+
+      // Autoplay; if blocked make overlay a click-to-start target
+      video.play().catch(() => {
+        overlay.style.cursor = 'pointer';
+        overlay.addEventListener('click', () => {
+          overlay.style.cursor = '';
+          video.play().catch(dismiss);
+        }, { once: true });
+      });
+
+      video.addEventListener('error', dismiss);
+      skipBtn.addEventListener('click', dismiss);
+    })();
+
+    // ── Parallax foreground layers ──────────────────────────────
+    // Each layer uses background-repeat: repeat-y, so
+    // incrementing backgroundPositionY loops seamlessly.
+    // Speed hierarchy: small (far/slow) → medium → big (near/fast)
+
+    const fgSmall  = document.getElementById('fg-small');
+    const fgMedium = document.getElementById('fg-medium');
+    const fgBig    = document.getElementById('fg-big');
+
+    const SPEED_SMALL  = 0.07;   // farthest — barely moves
+    const SPEED_MEDIUM = 0.17;   // mid-depth
+    const SPEED_BIG    = 0.30;   // nearest — most movement
+
+    let ticking = false;
+
+    function updateParallax() {
+      const y = window.scrollY;
+      fgSmall.style.backgroundPositionY  = (-y * SPEED_SMALL)  + 'px';
+      fgMedium.style.backgroundPositionY = (-y * SPEED_MEDIUM) + 'px';
+      fgBig.style.backgroundPositionY    = (-y * SPEED_BIG)    + 'px';
+      ticking = false;
+    }
+
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(updateParallax);
+        ticking = true;
+      }
+    }, { passive: true });
+
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+    updateParallax();
+
+    // ── Navbar ───────────────────────────────────────────────────
+    const nav = document.getElementById('nav');
+
+    // ── Custom scrollbar ─────────────────────────────────────────
+    const sb        = document.getElementById('custom-scrollbar');
+    const sbTrack   = document.getElementById('sb-track');
+    const sbThumb   = document.getElementById('sb-thumb');
+    const sbUp      = document.getElementById('sb-up');
+    const sbDown    = document.getElementById('sb-down');
+    let sbHideTimer;
+
+    function updateThumb() {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      if (scrollable <= 0) { sbThumb.style.height = '100%'; sbThumb.style.top = '0'; return; }
+      const trackH  = sbTrack.clientHeight;
+      const ratio   = window.scrollY / scrollable;
+      const thumbH  = Math.max(28, trackH * (window.innerHeight / document.documentElement.scrollHeight));
+      const maxTop  = trackH - thumbH;
+      sbThumb.style.height = thumbH + 'px';
+      sbThumb.style.top    = (ratio * maxTop) + 'px';
+    }
+
+    function showScrollbar() {
+      sb.classList.add('sb-visible');
+      clearTimeout(sbHideTimer);
+      sbHideTimer = setTimeout(() => sb.classList.remove('sb-visible'), 1000);
+    }
+
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 70);
+      updateThumb();
+      showScrollbar();
+    }, { passive: true });
+
+    // Track click: jump to position
+    sbTrack.addEventListener('click', e => {
+      if (e.target === sbThumb) return;
+      const rect = sbTrack.getBoundingClientRect();
+      const clickRatio = (e.clientY - rect.top) / rect.height;
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      window.scrollTo({ top: clickRatio * scrollable, behavior: 'smooth' });
+    });
+
+    // Thumb drag
+    sbThumb.addEventListener('mousedown', e => {
+      e.preventDefault();
+      sbThumb.classList.add('dragging');
+      const startY     = e.clientY;
+      const startScroll = window.scrollY;
+      const trackH     = sbTrack.clientHeight;
+      const thumbH     = sbThumb.clientHeight;
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+
+      function onMove(ev) {
+        const delta = ev.clientY - startY;
+        const scrollDelta = (delta / (trackH - thumbH)) * scrollable;
+        window.scrollTo(0, Math.max(0, Math.min(scrollable, startScroll + scrollDelta)));
+      }
+      function onUp() {
+        sbThumb.classList.remove('dragging');
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('mouseup', onUp);
+      }
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onUp);
+    });
+
+    // Arrow buttons
+    sbUp.addEventListener('click',   () => { window.scrollBy({ top: -120, behavior: 'smooth' }); showScrollbar(); });
+    sbDown.addEventListener('click', () => { window.scrollBy({ top:  120, behavior: 'smooth' }); showScrollbar(); });
+
+    // Init
+    updateThumb();
+    window.addEventListener('resize', updateThumb);
+
+    // ── Scroll reveal (IntersectionObserver) ────────────────────
+    const revealEls = document.querySelectorAll('.reveal');
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) e.target.classList.add('visible');
+      });
+    }, { threshold: 0.12 });
+
+    revealEls.forEach(el => revealObs.observe(el));
+
+    // ── Gallery data ─────────────────────────────────────────────
+    const galleryData = {
+      bathroom: {
+        title: 'Bathroom Vanities',
+        photos: [
+          { src: 'Gallery/Bathroom%20Vanities/1.png',  alt: 'Bathroom Vanity' },
+          { src: 'Gallery/Bathroom%20Vanities/2.png',  alt: 'Bathroom Vanity' },
+          { src: 'Gallery/Bathroom%20Vanities/3.png',  alt: 'Bathroom Vanity' },
+          { src: 'Gallery/Bathroom%20Vanities/4.png',  alt: 'Bathroom Vanity' },
+          { src: 'Gallery/Bathroom%20Vanities/5.png',  alt: 'Bathroom Vanity' },
+          { src: 'Gallery/Bathroom%20Vanities/6.png',  alt: 'Bathroom Vanity' },
+          { src: 'Gallery/Bathroom%20Vanities/7.png',  alt: 'Bathroom Vanity' },
+          { src: 'Gallery/Bathroom%20Vanities/8.png',  alt: 'Bathroom Vanity' },
+          { src: 'Gallery/Bathroom%20Vanities/9.png',  alt: 'Bathroom Vanity' },
+          { src: 'Gallery/Bathroom%20Vanities/10.png', alt: 'Bathroom Vanity' },
+          { src: 'Gallery/Bathroom%20Vanities/11.png', alt: 'Bathroom Vanity' },
+          { src: 'Gallery/Bathroom%20Vanities/12.png', alt: 'Bathroom Vanity' },
+          { src: 'Gallery/Bathroom%20Vanities/13.jpg', alt: 'Bathroom Vanity' },
+          { src: 'Gallery/Bathroom%20Vanities/14.png', alt: 'Bathroom Vanity' },
+          { src: 'Gallery/Bathroom%20Vanities/15.png', alt: 'Bathroom Vanity' },
+          { src: 'Gallery/Bathroom%20Vanities/16.png', alt: 'Bathroom Vanity' },
+        ]
+      },
+      kitchen: {
+        title: 'Custom Kitchen Cabinetry',
+        photos: [
+          { src: 'Gallery/Custom%20Kitchen%20Cabinetry/1.png',  alt: 'Kitchen Cabinetry' },
+          { src: 'Gallery/Custom%20Kitchen%20Cabinetry/2.png',  alt: 'Kitchen Cabinetry' },
+          { src: 'Gallery/Custom%20Kitchen%20Cabinetry/3.png',  alt: 'Kitchen Cabinetry' },
+          { src: 'Gallery/Custom%20Kitchen%20Cabinetry/4.png',  alt: 'Kitchen Cabinetry' },
+          { src: 'Gallery/Custom%20Kitchen%20Cabinetry/5.png',  alt: 'Kitchen Cabinetry' },
+          { src: 'Gallery/Custom%20Kitchen%20Cabinetry/6.png',  alt: 'Kitchen Cabinetry' },
+          { src: 'Gallery/Custom%20Kitchen%20Cabinetry/7.png',  alt: 'Kitchen Cabinetry' },
+          { src: 'Gallery/Custom%20Kitchen%20Cabinetry/8.png',  alt: 'Kitchen Cabinetry' },
+          { src: 'Gallery/Custom%20Kitchen%20Cabinetry/9.png',  alt: 'Kitchen Cabinetry' },
+          { src: 'Gallery/Custom%20Kitchen%20Cabinetry/10.png', alt: 'Kitchen Cabinetry' },
+          { src: 'Gallery/Custom%20Kitchen%20Cabinetry/11.png', alt: 'Kitchen Cabinetry' },
+          { src: 'Gallery/Custom%20Kitchen%20Cabinetry/12.png', alt: 'Kitchen Cabinetry' },
+          { src: 'Gallery/Custom%20Kitchen%20Cabinetry/13.png', alt: 'Kitchen Cabinetry' },
+          { src: 'Gallery/Custom%20Kitchen%20Cabinetry/14.png', alt: 'Kitchen Cabinetry' },
+          { src: 'Gallery/Custom%20Kitchen%20Cabinetry/15.png', alt: 'Kitchen Cabinetry' },
+          { src: 'Gallery/Custom%20Kitchen%20Cabinetry/16.png', alt: 'Kitchen Cabinetry' },
+          { src: 'Gallery/Custom%20Kitchen%20Cabinetry/17.png', alt: 'Kitchen Cabinetry' },
+          { src: 'Gallery/Custom%20Kitchen%20Cabinetry/18.png', alt: 'Kitchen Cabinetry' },
+          { src: 'Gallery/Custom%20Kitchen%20Cabinetry/19.png', alt: 'Kitchen Cabinetry' },
+        ]
+      },
+      bedroom: {
+        title: 'Bedroom Closets & Storage',
+        photos: [
+          { src: 'Gallery/Bedroom%20Closets%20&%20Storage/1.png',  alt: 'Bedroom Closets & Storage' },
+          { src: 'Gallery/Bedroom%20Closets%20&%20Storage/2.png',  alt: 'Bedroom Closets & Storage' },
+          { src: 'Gallery/Bedroom%20Closets%20&%20Storage/3.png',  alt: 'Bedroom Closets & Storage' },
+          { src: 'Gallery/Bedroom%20Closets%20&%20Storage/4.png',  alt: 'Bedroom Closets & Storage' },
+          { src: 'Gallery/Bedroom%20Closets%20&%20Storage/5.png',  alt: 'Bedroom Closets & Storage' },
+          { src: 'Gallery/Bedroom%20Closets%20&%20Storage/6.png',  alt: 'Bedroom Closets & Storage' },
+          { src: 'Gallery/Bedroom%20Closets%20&%20Storage/7.png',  alt: 'Bedroom Closets & Storage' },
+          { src: 'Gallery/Bedroom%20Closets%20&%20Storage/8.png',  alt: 'Bedroom Closets & Storage' },
+          { src: 'Gallery/Bedroom%20Closets%20&%20Storage/9.png',  alt: 'Bedroom Closets & Storage' },
+          { src: 'Gallery/Bedroom%20Closets%20&%20Storage/10.png', alt: 'Bedroom Closets & Storage' },
+          { src: 'Gallery/Bedroom%20Closets%20&%20Storage/11.png', alt: 'Bedroom Closets & Storage' },
+          { src: 'Gallery/Bedroom%20Closets%20&%20Storage/12.png', alt: 'Bedroom Closets & Storage' },
+          { src: 'Gallery/Bedroom%20Closets%20&%20Storage/13.png', alt: 'Bedroom Closets & Storage' },
+        ]
+      },
+      living: {
+        title: 'Living Area Cabinet & Shelves',
+        photos: [
+          { src: 'Gallery/Living-Area-Cabinet-Shelves/1.png', alt: 'Living Area Cabinet' },
+          { src: 'Gallery/Living-Area-Cabinet-Shelves/2.png', alt: 'Living Area Cabinet' },
+          { src: 'Gallery/Living-Area-Cabinet-Shelves/3.png', alt: 'Living Area Cabinet' },
+          { src: 'Gallery/Living-Area-Cabinet-Shelves/4.png', alt: 'Living Area Cabinet' },
+          { src: 'Gallery/Living-Area-Cabinet-Shelves/5.png', alt: 'Living Area Cabinet' },
+          { src: 'Gallery/Living-Area-Cabinet-Shelves/6.png', alt: 'Living Area Cabinet' },
+        ]
+      },
+    };
+
+    // ── Populate category modal grids ────────────────────────────
+    Object.entries(galleryData).forEach(([key, cat]) => {
+      const grid = document.getElementById(`modal-grid-${key}`);
+      if (!grid) return;
+      if (!cat.photos.length) {
+        grid.innerHTML = '<div class="modal-empty-state">Photos coming soon</div>';
+        return;
+      }
+      grid.innerHTML = cat.photos.map((p, i) =>
+        `<div class="modal-photo" data-index="${i}"><img src="${p.src}" alt="${p.alt}" loading="lazy"/></div>`
+      ).join('');
+      grid.querySelectorAll('.modal-photo').forEach(el =>
+        el.addEventListener('click', () => openLightbox(cat.photos, +el.dataset.index))
+      );
+    });
+
+    // ── Featured inline crossfade slideshow ──────────────────────
+    const allSlides = Object.entries(galleryData).flatMap(([, cat]) => cat.photos);
+    const gFeaturedSlides = document.getElementById('g-featured-slides');
+    const gSlideCounter   = document.getElementById('g-slide-counter');
+
+    if (allSlides.length && gFeaturedSlides) {
+      gFeaturedSlides.innerHTML = allSlides.map((p, i) =>
+        `<div class="g-slide${i === 0 ? ' active' : ''}">
+           <img src="${p.src}" alt="${p.alt}" ${i < 3 ? '' : 'loading="lazy"'} />
+         </div>`
+      ).join('');
+      if (gSlideCounter) gSlideCounter.textContent = `1 / ${allSlides.length}`;
+    }
+
+    let featuredIdx = 0;
+    let featuredTimer = null;
+
+    function goFeatured(i) {
+      const slides = gFeaturedSlides ? gFeaturedSlides.querySelectorAll('.g-slide') : [];
+      if (!slides.length) return;
+      slides[featuredIdx].classList.remove('active');
+      featuredIdx = (i + slides.length) % slides.length;
+      slides[featuredIdx].classList.add('active');
+      if (gSlideCounter) gSlideCounter.textContent = `${featuredIdx + 1} / ${slides.length}`;
+    }
+
+    function startAuto() {
+      if (allSlides.length <= 1) return;
+      featuredTimer = setInterval(() => goFeatured(featuredIdx + 1), 4000);
+    }
+    function stopAuto() { clearInterval(featuredTimer); featuredTimer = null; }
+
+    const gFeatured = document.getElementById('g-featured');
+    if (gFeatured) {
+      gFeatured.addEventListener('mouseenter', stopAuto);
+      gFeatured.addEventListener('mouseleave', startAuto);
+    }
+
+    document.getElementById('g-slide-prev').addEventListener('click', e => {
+      e.stopPropagation(); stopAuto(); goFeatured(featuredIdx - 1); startAuto();
+    });
+    document.getElementById('g-slide-next').addEventListener('click', e => {
+      e.stopPropagation(); stopAuto(); goFeatured(featuredIdx + 1); startAuto();
+    });
+
+    if (allSlides.length > 1) startAuto();
+
+    // ── Category modal open / close ──────────────────────────────
+    function openModal(id) {
+      const m = document.getElementById(id);
+      if (!m) return;
+      m.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(id) {
+      const m = document.getElementById(id);
+      if (!m) return;
+      m.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.querySelectorAll('[data-gallery]').forEach(el =>
+      el.addEventListener('click', () => openModal(`modal-${el.dataset.gallery}`))
+    );
+
+    document.querySelectorAll('.modal-backdrop, .modal-close').forEach(el =>
+      el.addEventListener('click', () => {
+        const m = el.closest('.gallery-modal');
+        if (m) closeModal(m.id);
+      })
+    );
+
+    document.addEventListener('keydown', e => {
+      if (document.getElementById('lightbox').classList.contains('open')) {
+        if (e.key === 'Escape')       closeLightbox();
+        if (e.key === 'ArrowLeft')    lightboxNav(-1);
+        if (e.key === 'ArrowRight')   lightboxNav(1);
+        return;
+      }
+      const open = document.querySelector('.gallery-modal.open');
+      if (!open) return;
+      if (e.key === 'Escape') closeModal(open.id);
+    });
+
+    // ── Lightbox ─────────────────────────────────────────────────
+    const lightbox        = document.getElementById('lightbox');
+    const lightboxImg     = document.getElementById('lightbox-img');
+    const lightboxCounter = document.getElementById('lightbox-counter');
+    let lbPhotos = [];
+    let lbIndex  = 0;
+
+    function openLightbox(photos, index) {
+      lbPhotos = photos;
+      lbIndex  = index;
+      lightbox.classList.add('open');
+      renderLightbox();
+    }
+
+    function closeLightbox() {
+      lightbox.classList.remove('open');
+    }
+
+    function renderLightbox() {
+      const p = lbPhotos[lbIndex];
+      lightboxImg.classList.add('fading');
+      setTimeout(() => {
+        lightboxImg.src = p.src;
+        lightboxImg.alt = p.alt;
+        lightboxImg.classList.remove('fading');
+      }, 180);
+      lightboxCounter.textContent = `${lbIndex + 1} / ${lbPhotos.length}`;
+      document.getElementById('lightbox-prev').style.visibility = lbPhotos.length > 1 ? '' : 'hidden';
+      document.getElementById('lightbox-next').style.visibility = lbPhotos.length > 1 ? '' : 'hidden';
+    }
+
+    function lightboxNav(dir) {
+      lbIndex = (lbIndex + dir + lbPhotos.length) % lbPhotos.length;
+      renderLightbox();
+    }
+
+    document.getElementById('lightbox-prev').addEventListener('click', () => lightboxNav(-1));
+    document.getElementById('lightbox-next').addEventListener('click', () => lightboxNav(1));
+    document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+
+    // Touch swipe support
+    let lbTouchStartX = 0;
+    lightbox.addEventListener('touchstart', e => { lbTouchStartX = e.touches[0].clientX; }, { passive: true });
+    lightbox.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - lbTouchStartX;
+      if (Math.abs(dx) > 40) lightboxNav(dx < 0 ? 1 : -1);
+    }, { passive: true });
+
+    // ── Contact form ─────────────────────────────────────────────
+    function handleSubmit(e) {
+      e.preventDefault();
+      const btn = e.target.querySelector('[type="submit"]');
+      btn.textContent = 'Message Sent';
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+    }
+
+    // ── Mobile nav toggle ─────────────────────────────────────────
+    (function () {
+      const toggle  = document.getElementById('nav-toggle');
+      const mobileNav = document.getElementById('mobile-nav');
+      let isOpen = false;
+
+      function openMenu() {
+        isOpen = true;
+        toggle.classList.add('open');
+        toggle.setAttribute('aria-expanded', 'true');
+        mobileNav.style.display = 'flex';
+        requestAnimationFrame(() => mobileNav.classList.add('open'));
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeMenu() {
+        isOpen = false;
+        toggle.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+        mobileNav.classList.remove('open');
+        document.body.style.overflow = '';
+        setTimeout(() => { if (!isOpen) mobileNav.style.display = 'none'; }, 300);
+      }
+
+      toggle.addEventListener('click', () => isOpen ? closeMenu() : openMenu());
+
+      mobileNav.querySelectorAll('a').forEach(a =>
+        a.addEventListener('click', closeMenu)
+      );
+    })();
+  </script>
+</body>
+</html>
