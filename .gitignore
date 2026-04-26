@@ -3,3 +3,8 @@ dist/
 .vite/
 .claude/
 *.local
+
+# Adobe After Effects / Media Encoder generated files
+**/Adobe After Effects Auto-Save/
+**/*.aep_AME/
+**/tmpAEtoAMEProject-*.aep

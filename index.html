@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Marina Woodcrafts Design Inc.</title>
-  <link rel="icon" type="image/png" href="Icon.png" />
+  <link rel="icon" type="image/png" href="Assets/Favicon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&display=swap" rel="stylesheet" />
@@ -137,15 +137,16 @@
     #fb-door-right { z-index: 2; }
     #fb-door-left  { z-index: 3; }
 
-    /* Duration = 32 frames ÷ 24 fps ≈ 1333 ms — matches Door24 length */
+    /* Duration driven by --fb-dur set in JS (32 frames = 1333ms, 35 frames = 1458ms) */
+    #door-fallback { --fb-dur: 1333ms; }
     #door-fallback.fb-animate #fb-wood-frame {
-      animation: fb-scale-fade 1333ms ease-in-out forwards;
+      animation: fb-scale-fade var(--fb-dur) ease-in-out forwards;
     }
     #door-fallback.fb-animate #fb-door-left {
-      animation: fb-left-open 1333ms ease-in-out forwards;
+      animation: fb-left-open var(--fb-dur) ease-in-out forwards;
     }
     #door-fallback.fb-animate #fb-door-right {
-      animation: fb-right-open 1333ms ease-in-out forwards;
+      animation: fb-right-open var(--fb-dur) ease-in-out forwards;
     }
 
     @keyframes fb-scale-fade {
@@ -162,6 +163,46 @@
       0%   { transform: scale(1)   translateX(0);    opacity: 1; }
       75%  { transform: scale(1.3) translateX(100%); opacity: 1; }
       100% { transform: scale(1.3) translateX(100%); opacity: 0; }
+    }
+
+    /* ─────────────────────────────────────────
+       PORTRAIT INTRO SIZING
+       Fit video and door frames to viewport
+       height (vertical) instead of width.
+    ───────────────────────────────────────── */
+    @media (orientation: portrait) {
+      #intro-video {
+        width: auto;
+        height: 100vh;
+      }
+      #door-frame {
+        width: auto;
+        height: 100vh;
+      }
+      #fb-stage {
+        width: auto;
+        height: 100vh;
+      }
+      #fb-wood-frame {
+        width: auto;
+        height: 100vh;
+      }
+      #fb-door-right,
+      #fb-door-left {
+        width: auto;
+        height: 100vh;
+      }
+
+      /* In portrait the door/frame fills full height — bars become
+         left & right side strips to match the desktop top/bottom effect. */
+      #door-overlay,
+      #door-fallback {
+        flex-direction: row;
+      }
+      .door-bar {
+        width: auto;
+        height: 100%;
+      }
     }
 
     /* ─────────────────────────────────────────
@@ -1782,15 +1823,38 @@
       const doorOverlay = document.getElementById('door-overlay');
       const doorFrame   = document.getElementById('door-frame');
 
+      // Portrait orientation → use mobile portrait assets
+      const isPortrait = window.innerHeight > window.innerWidth;
+
       document.body.classList.add('intro-active');
 
-      // ── Preload all 32 Door24 frames; track how many finish ────
-      const DOOR_COUNT   = 32;
+      // ── Swap video source for portrait ────────────────────────
+      if (isPortrait) {
+        const src = video.querySelector('source');
+        src.setAttribute('src', 'Intro%20Animation/intro.aep_AME/Portait_Version/Intro_Portait_Version.mp4');
+        video.load();
+      }
+
+      // ── Swap CSS fallback images for portrait ─────────────────
+      if (isPortrait) {
+        document.getElementById('fb-wood-frame').src = 'Intro%20Animation/intro.aep_AME/Portait_Version/frame.png';
+        document.getElementById('fb-door-right').src = 'Intro%20Animation/intro.aep_AME/Portait_Version/Right_Portait_Version.png';
+        document.getElementById('fb-door-left').src  = 'Intro%20Animation/intro.aep_AME/Portait_Version/Left_Portait_Version.png';
+      }
+
+      // ── Preload Door24 frames; track how many finish ──────────
+      // Portrait version has 35 frames; desktop has 32
+      const DOOR_COUNT   = isPortrait ? 35 : 32;
       const MS_PER_FRAME = 1000 / 24; // 24 fps ≈ 41.7 ms/frame
-      const doorSrcs = Array.from({ length: DOOR_COUNT }, (_, i) => {
-        const n = String(i).padStart(5, '0');
-        return `Intro%20Animation/intro.aep_AME/Door24/Door24_${n}.png`;
-      });
+      const doorSrcs = isPortrait
+        ? Array.from({ length: DOOR_COUNT }, (_, i) => {
+            const n = String(i).padStart(5, '0');
+            return `Intro%20Animation/intro.aep_AME/Portait_Version/Door24/Door24_Portait_Version_${n}.png`;
+          })
+        : Array.from({ length: DOOR_COUNT }, (_, i) => {
+            const n = String(i).padStart(5, '0');
+            return `Intro%20Animation/intro.aep_AME/Door24/Door24_${n}.png`;
+          });
       let loadedCount = 0;
       doorSrcs.forEach(src => {
         const img = new Image();
@@ -1839,12 +1903,14 @@
         } else {
           // ── Fallback: CSS-animated 3-layer door open ──
           const fbOverlay = document.getElementById('door-fallback');
+          const fbDur = Math.round(DOOR_COUNT / 24 * 1000); // ms matching Door24 frame count
+          fbOverlay.style.setProperty('--fb-dur', fbDur + 'ms');
           document.getElementById('fb-bar-top').style.background    = barColor;
           document.getElementById('fb-bar-bottom').style.background = barColor;
           fbOverlay.style.display = 'flex';
           // Trigger animations on next frame so display:flex settles first
           requestAnimationFrame(() => fbOverlay.classList.add('fb-animate'));
-          setTimeout(() => fbOverlay.remove(), 1333 + 100);
+          setTimeout(() => fbOverlay.remove(), fbDur + 100);
         }
       }
 
