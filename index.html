@@ -1887,8 +1887,8 @@
         overlay.remove();
         document.body.classList.remove('intro-active');
 
-        if (loadedCount === DOOR_COUNT) {
-          // ── All 32 frames loaded: play Door24 frame sequence ──
+        if (loadedCount === DOOR_COUNT && !isPortrait) {
+          // ── All frames loaded and landscape: play Door24 frame sequence ──
           document.getElementById('door-bar-top').style.background    = barColor;
           document.getElementById('door-bar-bottom').style.background = barColor;
           doorFrame.src = doorSrcs[0];
