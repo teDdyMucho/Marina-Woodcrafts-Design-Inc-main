@@ -126,6 +126,7 @@ The UI is fully functional at launch (shows confirmation states, handles errors)
 
 ## Open Items / Risks
 
-- **Phone number & license info:** the audit flagged the missing phone number (NAP consistency) and noted that mentioning trade licenses/certifications strengthens E-E-A-T. These need to come from the user before the schema and contact page can be finalized.
+- **Phone number:** ~~missing~~ resolved — `+1 (310) 990-0788` (will be added to `lib/business.ts`, the `LocalBusiness` schema, and the contact page).
+- **License info:** the audit noted that mentioning trade licenses/certifications strengthens E-E-A-T. Still needed from the user (optional — can ship without it and add later).
 - **Brand authority links:** `sameAs` schema links (Google Business Profile, Houzz, social profiles) depend on the user providing/confirming which profiles exist.
 - **Asset paths:** the current site references heavily-nested asset paths with spaces (e.g. `Intro Animation/intro.aep_AME/Door24/...`) that will need URL-encoding-safe handling when moved into `public/` and referenced via `next/image`/`<source>`.
