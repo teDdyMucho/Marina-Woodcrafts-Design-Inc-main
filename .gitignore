@@ -1,5 +1,9 @@
-node_modules/
-dist/
+node_modules
+.next
+out
+dist
+.env*.local
+.vercel
 .vite/
 .claude/
 *.local
