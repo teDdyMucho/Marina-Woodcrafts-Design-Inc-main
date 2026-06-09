@@ -11,7 +11,7 @@
     html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: var(--font-inter), sans-serif;
       background: var(--cream);
       color: var(--green);
       overflow-x: hidden;

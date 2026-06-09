@@ -51,7 +51,7 @@
     }
 
     .hero-headline {
-      font-family: 'Playfair Display', serif;
+      font-family: var(--font-playfair), serif;
       font-size: clamp(2.8rem, 7vw, 6rem);
       font-weight: 400;
       color: var(--cream);
@@ -78,7 +78,7 @@
     .btn {
       display: inline-block;
       padding: 14px 44px;
-      font-family: 'Inter', sans-serif;
+      font-family: var(--font-inter), sans-serif;
       font-size: 10px;
       font-weight: 600;
       letter-spacing: 0.2em;

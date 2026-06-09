@@ -60,7 +60,7 @@
     .field input,
     .field textarea,
     .field select {
-      font-family: 'Inter', sans-serif;
+      font-family: var(--font-inter), sans-serif;
       font-size: 0.95rem;
       color: var(--green);
       background: transparent;

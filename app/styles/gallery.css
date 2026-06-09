@@ -102,7 +102,7 @@
     }
 
     .modal-title {
-      font-family: 'Playfair Display', serif;
+      font-family: var(--font-playfair), serif;
       font-size: 1.45rem;
       font-weight: 400;
       color: var(--green);

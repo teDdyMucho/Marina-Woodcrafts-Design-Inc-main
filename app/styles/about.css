@@ -51,7 +51,7 @@
     }
 
     .stat-num {
-      font-family: 'Playfair Display', serif;
+      font-family: var(--font-playfair), serif;
       font-size: 3.2rem;
       font-weight: 400;
       color: var(--green);

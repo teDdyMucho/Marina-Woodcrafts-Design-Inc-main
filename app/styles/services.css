@@ -28,7 +28,7 @@
     .service-card:hover { background: var(--green); }
 
     .svc-num {
-      font-family: 'Playfair Display', serif;
+      font-family: var(--font-playfair), serif;
       font-size: 1.1rem;
       color: rgba(29,51,40,0.2);
       margin-bottom: 32px;
@@ -37,7 +37,7 @@
     .service-card:hover .svc-num { color: rgba(245,240,232,0.25); }
 
     .svc-title {
-      font-family: 'Playfair Display', serif;
+      font-family: var(--font-playfair), serif;
       font-size: 1.45rem;
       font-weight: 500;
       color: var(--green);

@@ -27,7 +27,7 @@
       background: transparent;
       border: 1px solid rgba(0,0,0,0.2);
       color: rgba(0,0,0,0.4);
-      font-family: 'Inter', sans-serif;
+      font-family: var(--font-inter), sans-serif;
       font-size: 10px;
       letter-spacing: 0.18em;
       text-transform: uppercase;
