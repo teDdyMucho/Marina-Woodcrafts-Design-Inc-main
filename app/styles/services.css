@@ -1,0 +1,65 @@
+    /* ─────────────────────────────────────────
+       SERVICES
+    ───────────────────────────────────────── */
+    #services { background: var(--cream-dark); }
+
+    .services-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 32px;
+      margin-bottom: 64px;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+
+    .service-card {
+      background: var(--cream);
+      padding: 52px 42px;
+      cursor: default;
+      transition: background 0.35s, color 0.35s;
+    }
+
+    .service-card:hover { background: var(--green); }
+
+    .svc-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: rgba(29,51,40,0.2);
+      margin-bottom: 32px;
+      transition: color 0.35s;
+    }
+    .service-card:hover .svc-num { color: rgba(245,240,232,0.25); }
+
+    .svc-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.45rem;
+      font-weight: 500;
+      color: var(--green);
+      margin-bottom: 14px;
+      transition: color 0.35s;
+    }
+    .service-card:hover .svc-title { color: var(--cream); }
+
+    .svc-desc {
+      font-size: 0.88rem;
+      line-height: 1.8;
+      color: var(--muted);
+      transition: color 0.35s;
+    }
+    .service-card:hover .svc-desc { color: rgba(245,240,232,0.65); }
+
+    .services-disclaimer {
+      margin-top: 20px;
+      max-width: 36rem;
+      font-size: 0.78rem;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--muted);
+      line-height: 1.65;
+    }
