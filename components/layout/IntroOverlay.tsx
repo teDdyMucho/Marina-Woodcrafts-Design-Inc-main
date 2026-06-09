@@ -95,7 +95,7 @@ export function IntroOverlay() {
       if (dismissedRef.current) return
       dismissedRef.current = true
       sampling = false
-      video.pause()
+      video!.pause()
       startDoors()
     }
 

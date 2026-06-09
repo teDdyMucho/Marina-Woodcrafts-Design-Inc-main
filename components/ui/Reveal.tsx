@@ -4,7 +4,7 @@ import { createElement, type CSSProperties, type ElementType, type ReactNode } f
 import { useReveal } from '@/hooks/useReveal'
 
 interface RevealProps {
-  children: ReactNode
+  children?: ReactNode
   as?: ElementType
   className?: string
   style?: CSSProperties
