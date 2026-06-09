@@ -53,7 +53,7 @@ export default async function CategoryPage({ params }: Props) {
   }
 
   return (
-    <main>
+    <main className="gallery-page">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -77,7 +77,7 @@ export default async function CategoryPage({ params }: Props) {
 
       {/* Section 2 — Photo grid */}
       <section className="section" style={{ paddingTop: 0 }}>
-        <div className="wrap">
+        <div className="wrap" style={{ paddingTop: 0 }}>
           <GalleryGrid photos={cat.photos} />
         </div>
       </section>

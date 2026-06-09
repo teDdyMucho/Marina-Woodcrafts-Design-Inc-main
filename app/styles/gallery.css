@@ -3,6 +3,131 @@
     ───────────────────────────────────────── */
     #gallery { background: var(--green); }
 
+    /* Category detail page — dark backdrop so the light-on-green
+       portfolio title and the photo grid read correctly. */
+    .gallery-page { background: var(--green); }
+
+    /* ─────────────────────────────────────────
+       CATEGORY PHOTO GRID
+       Architectural editorial composition — a curated
+       asymmetric mosaic (6-col base + spanning tiles)
+       rather than a uniform grid, so the eye moves
+       between hero shots, portraits and details.
+    ───────────────────────────────────────── */
+    .gallery-photos {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-auto-rows: 110px;
+      grid-auto-flow: dense;
+      gap: 14px;
+    }
+
+    /* Repeating 9-tile "spread". Every band's column spans total 6 and its
+       tile heights match, so the mosaic always closes flush — no holes.
+       The rhythm: cinematic hero → tall portrait beside two stacked wides
+       → balanced pair → two stacked wides beside a mirrored tall portrait. */
+    .gallery-photo                 { grid-column: span 3; grid-row: span 3; }
+    .gallery-photo:nth-child(9n+1) { grid-column: span 6; grid-row: span 3; } /* cinematic hero */
+    .gallery-photo:nth-child(9n+2) { grid-column: span 2; grid-row: span 4; } /* tall portrait — left */
+    .gallery-photo:nth-child(9n+3) { grid-column: span 4; grid-row: span 2; } /* wide — top-right */
+    .gallery-photo:nth-child(9n+4) { grid-column: span 4; grid-row: span 2; } /* wide — bottom-right */
+    .gallery-photo:nth-child(9n+5) { grid-column: span 3; grid-row: span 3; } /* balanced pair */
+    .gallery-photo:nth-child(9n+6) { grid-column: span 3; grid-row: span 3; }
+    .gallery-photo:nth-child(9n+7) { grid-column: span 4; grid-row: span 2; } /* wide — top-left */
+    .gallery-photo:nth-child(9n+8) { grid-column: span 4; grid-row: span 2; } /* wide — bottom-left */
+    .gallery-photo:nth-child(9n)   { grid-column: span 2; grid-row: span 4; } /* tall portrait — right */
+
+    .gallery-photo {
+      position: relative;
+      overflow: hidden;
+      padding: 0;
+      margin: 0;
+      border: none;
+      background: rgba(245,240,232,0.04);
+      cursor: pointer;
+    }
+
+    .gallery-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      /* Starts slightly zoomed; settles once revealed. */
+      transform: scale(1.12);
+      transition: transform 1.4s cubic-bezier(0.22, 0.61, 0.36, 1), filter 0.5s ease;
+      filter: saturate(0.92);
+    }
+    .gallery-photo.visible img { transform: scale(1); }
+    .gallery-photo:hover img { transform: scale(1.06); filter: saturate(1.04); }
+
+    /* Scroll reveal — a clip wipe + fade, more gallery-grade than a
+       plain translate. Overrides the global .reveal transform. */
+    .gallery-photo.reveal {
+      opacity: 0;
+      transform: none;
+      clip-path: inset(14% 14% 14% 14%);
+      transition: opacity 1s ease, clip-path 1.2s cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+    .gallery-photo.reveal.visible {
+      opacity: 1;
+      clip-path: inset(0 0 0 0);
+    }
+
+    /* Thin inner frame, architectural plate number, and a "View"
+       cue — all hairline-subtle until hover. */
+    .gallery-photo::after {
+      content: '';
+      position: absolute;
+      inset: 14px;
+      border: 1px solid rgba(245,240,232,0);
+      transition: border-color 0.4s ease, inset 0.4s ease;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .gallery-photo:hover::after { border-color: rgba(245,240,232,0.4); }
+
+    .gallery-photo-plate {
+      position: absolute;
+      top: 16px;
+      left: 18px;
+      z-index: 3;
+      font-family: var(--font-playfair), serif;
+      font-size: 0.92rem;
+      letter-spacing: 0.04em;
+      color: rgba(245,240,232,0.92);
+      text-shadow: 0 1px 8px rgba(10,20,14,0.55);
+      opacity: 0;
+      transform: translateY(-4px);
+      transition: opacity 0.45s ease, transform 0.45s ease;
+      pointer-events: none;
+    }
+    .gallery-photo-plate i {
+      font-style: normal;
+      font-family: var(--font-inter), sans-serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.14em;
+      color: rgba(245,240,232,0.55);
+    }
+    .gallery-photo.visible .gallery-photo-plate { opacity: 1; transform: translateY(0); }
+
+    .gallery-photo-view {
+      position: absolute;
+      bottom: 18px;
+      left: 20px;
+      z-index: 3;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: rgba(245,240,232,0.95);
+      text-shadow: 0 1px 8px rgba(10,20,14,0.55);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      pointer-events: none;
+    }
+    .gallery-photo:hover .gallery-photo-view { opacity: 1; transform: translateY(0); }
+
     .gallery-meta {
       display: flex;
       align-items: flex-end;

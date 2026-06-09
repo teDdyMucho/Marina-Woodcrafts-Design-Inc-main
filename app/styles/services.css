@@ -23,6 +23,8 @@
       padding: 52px 42px;
       cursor: default;
       transition: background 0.35s, color 0.35s;
+      display: flex;
+      flex-direction: column;
     }
 
     .service-card:hover { background: var(--green); }
@@ -53,6 +55,26 @@
       transition: color 0.35s;
     }
     .service-card:hover .svc-desc { color: rgba(245,240,232,0.65); }
+
+    /* Pushed to the bottom of every card so the links line up across a
+       row regardless of how long each description is. */
+    .svc-link {
+      align-self: flex-start;
+      margin-top: auto;
+      padding-top: 28px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--green);
+      transition: color 0.35s, opacity 0.2s;
+      border-bottom: 1px solid rgba(29,51,40,0.3);
+      padding-bottom: 3px;
+    }
+    .svc-link:hover { opacity: 0.6; }
+    .service-card:hover .svc-link { border-color: rgba(245,240,232,0.4); }
+    .service-card:hover .svc-link { color: var(--cream); }
 
     .services-disclaimer {
       margin-top: 20px;
