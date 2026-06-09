@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { useScrolled } from '@/hooks/useScrolled'
 import { MobileNav } from './MobileNav'
@@ -15,11 +16,17 @@ const LINKS = [
 
 export function Nav() {
   const scrolled = useScrolled(70)
+  const pathname = usePathname()
   const [menuOpen, setMenuOpen] = useState(false)
+
+  // The home page has a dark hero behind the nav, so the transparent nav looks
+  // right there. Inner pages have light backgrounds at the top — keep the solid
+  // background so the light-colored logo and links stay visible.
+  const solid = scrolled || pathname !== '/'
 
   return (
     <>
-      <nav id="nav" className={scrolled ? 'scrolled' : ''}>
+      <nav id="nav" className={solid ? 'scrolled' : ''}>
         <Link href="/" className="nav-brand">
           <Image src="/Icon.png" alt="MW" width={34} height={34} className="nav-icon" />
           <div className="nav-wordmark">

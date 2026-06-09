@@ -26,7 +26,7 @@
       .g-item:first-child { grid-column: span 2; min-height: 280px; }
       .g-item { min-height: 200px; }
 
-      .contact-grid { grid-template-columns: 1fr; gap: 56px; }
+      .contact-layout { grid-template-columns: 1fr; gap: 56px; }
 
       footer { padding: 40px 32px; }
 
@@ -75,8 +75,8 @@
 
       .gallery-meta { flex-direction: column; align-items: flex-start; gap: 20px; }
 
-      .contact-grid { gap: 40px; margin-top: 48px; }
-      .contact-info p { font-size: 0.88rem; margin-bottom: 32px; }
+      .contact-layout { gap: 40px; margin-top: 48px; }
+      .contact-body { font-size: 0.88rem; margin-bottom: 32px; }
 
       footer {
         flex-direction: column;
