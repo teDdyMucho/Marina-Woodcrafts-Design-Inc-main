@@ -8,6 +8,127 @@
     .gallery-page { background: var(--green); }
 
     /* ─────────────────────────────────────────
+       GALLERY COLLECTION TABS (in-page, no separate category page)
+    ───────────────────────────────────────── */
+    .gallery-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 36px;
+      margin: 44px 0 0;
+      border-bottom: 1px solid rgba(245,240,232,0.15);
+      scroll-margin-top: 90px; /* clear the fixed nav when scrolled into view */
+    }
+
+    .gallery-tab {
+      position: relative;
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: baseline;
+      gap: 9px;
+      padding: 0 0 16px;
+      font-family: var(--font-inter), sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245,240,232,0.5);
+      transition: color 0.25s;
+    }
+    .gallery-tab:hover { color: rgba(245,240,232,0.82); }
+    .gallery-tab.active { color: rgba(245,240,232,0.96); }
+    .gallery-tab.active::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 2px;
+      background: rgba(245,240,232,0.9);
+    }
+
+    .gallery-tab-count {
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      color: rgba(245,240,232,0.4);
+    }
+
+    /* Intro zone: editorial copy on the left, a feature image on the right
+       so the full width is used. The mosaic grid follows below. */
+    .gallery-intro {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 60px;
+      align-items: center;
+      margin: 44px 0 52px;
+    }
+    .gallery-intro-media {
+      position: relative;
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      background: rgba(245,240,232,0.05);
+    }
+    .gallery-intro-img { object-fit: cover; }
+
+    .gallery-collection-title {
+      font-family: var(--font-playfair), serif;
+      font-size: clamp(1.8rem, 3.2vw, 2.7rem);
+      font-weight: 400;
+      color: rgba(245,240,232,0.96);
+      margin: 0 0 8px;
+    }
+
+    .gallery-collection-count {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(245,240,232,0.5);
+      margin-bottom: 26px;
+    }
+
+    /* Single-column editorial copy with a drop cap on the opening line. */
+    .gallery-collection-desc {
+      max-width: none;
+      margin: 0;
+    }
+    .gallery-collection-desc p {
+      font-size: 1.08rem;
+      line-height: 1.95;
+      color: rgba(245,240,232,0.72);
+    }
+    .gallery-collection-desc p + p { margin-top: 20px; }
+    .gallery-collection-desc p:first-of-type::first-letter {
+      float: left;
+      font-family: var(--font-playfair), serif;
+      font-size: 3.6em;
+      line-height: 0.78;
+      padding: 8px 14px 0 0;
+      color: rgba(245,240,232,0.92);
+    }
+
+    /* Grouped sub-galleries within a collection */
+    .gallery-group { margin-top: 56px; }
+    .gallery-group + .gallery-group { margin-top: 72px; }
+
+    .gallery-group-title {
+      font-family: var(--font-playfair), serif;
+      font-size: clamp(1.25rem, 2vw, 1.6rem);
+      font-weight: 400;
+      color: rgba(245,240,232,0.92);
+      margin-bottom: 10px;
+    }
+
+    .gallery-group-desc {
+      max-width: 760px;
+      margin-bottom: 28px;
+      font-size: 0.98rem;
+      line-height: 1.8;
+      color: rgba(245,240,232,0.62);
+    }
+
+    /* ─────────────────────────────────────────
        CATEGORY PHOTO GRID
        Architectural editorial composition — a curated
        asymmetric mosaic (6-col base + spanning tiles)

@@ -4,6 +4,8 @@ import './globals.css'
 import { IntroOverlay } from '@/components/layout/IntroOverlay'
 import { ParallaxLayers } from '@/components/layout/ParallaxLayers'
 import { CustomScrollbar } from '@/components/layout/CustomScrollbar'
+import { ScrollToTop } from '@/components/layout/ScrollToTop'
+import { BackToTop } from '@/components/layout/BackToTop'
 import { Nav } from '@/components/layout/Nav'
 import { Footer } from '@/components/layout/Footer'
 import { business } from '@/lib/business'
@@ -60,11 +62,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
         />
         <IntroOverlay />
+        <ScrollToTop />
         <CustomScrollbar />
         <ParallaxLayers />
         <Nav />
         {children}
         <Footer />
+        <BackToTop />
       </body>
     </html>
   )

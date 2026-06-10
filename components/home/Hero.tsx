@@ -6,7 +6,7 @@ export function Hero() {
   return (
     <section id="hero">
       <div className="hero-inner">
-        <Image src="/Icon.png" alt="Marina Woodcrafts" width={200} height={200} className="hero-logo" priority />
+        <Image src="/Icon.png" alt="Marina Woodcrafts" width={5400} height={3360} className="hero-logo" priority />
         <p className="hero-eyebrow">{business.tagline}</p>
         <h1 className="hero-headline">
           Where Wood<br />Becomes <em>Art</em>

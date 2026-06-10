@@ -28,7 +28,15 @@ export function Nav() {
     <>
       <nav id="nav" className={solid ? 'scrolled' : ''}>
         <Link href="/" className="nav-brand">
-          <Image src="/Icon.png" alt="MW" width={34} height={34} className="nav-icon" />
+          <Image
+            src="/Icon.png"
+            alt="MW"
+            width={5400}
+            height={3360}
+            className="nav-icon"
+            style={{ height: '34px', width: 'auto' }}
+            priority
+          />
           <div className="nav-wordmark">
             Marina Woodcrafts
             <span>Design Inc.</span>

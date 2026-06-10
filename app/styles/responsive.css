@@ -19,12 +19,19 @@
 
       .services-grid { grid-template-columns: repeat(2, 1fr); }
 
+      .services-detail-list { gap: 40px; }
+      .svc-detail-cols { grid-template-columns: 1fr; gap: 32px; padding: 36px 36px 40px; }
+      .svc-detail-media { aspect-ratio: 16 / 9; }
+
       .gallery-grid {
         grid-template-columns: repeat(2, 1fr);
         grid-template-rows: auto;
       }
       .g-item:first-child { grid-column: span 2; min-height: 280px; }
       .g-item { min-height: 200px; }
+
+      .gallery-intro { grid-template-columns: 1fr; gap: 32px; }
+      .gallery-intro-media { aspect-ratio: 16 / 9; }
 
       /* Category mosaic → simpler two-up on tablet */
       .gallery-photos { grid-template-columns: repeat(2, 1fr); grid-auto-rows: auto; gap: 12px; }
@@ -63,6 +70,10 @@
       .btn { padding: 13px 32px; font-size: 9px; }
 
       .about-grid { gap: 36px; margin-top: 36px; }
+      .about-block { margin-top: 64px; }
+      .about-services { grid-template-columns: 1fr; }
+      .about-steps { grid-template-columns: repeat(2, 1fr); gap: 28px; }
+      .about-values { grid-template-columns: 1fr; gap: 32px; }
       .about-stats { grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 48px; padding-top: 36px; }
       .stat-num { font-size: 2.2rem; }
       .stat-label { font-size: 8px; }
@@ -70,6 +81,9 @@
       .services-header { flex-direction: column; align-items: flex-start; gap: 20px; }
       .services-grid { grid-template-columns: 1fr; }
       .service-card { padding: 36px 28px; }
+      .services-detail-list { gap: 32px; }
+      .svc-detail-cols { grid-template-columns: 1fr; gap: 24px; padding: 28px 24px 32px; }
+      .svc-detail-media { aspect-ratio: 4 / 3; }
 
       .gallery-grid {
         grid-template-columns: 1fr;
@@ -79,6 +93,10 @@
       .g-item { min-height: 180px; }
 
       .gallery-meta { flex-direction: column; align-items: flex-start; gap: 20px; }
+
+      .gallery-tabs { gap: 2px 18px; }
+      .gallery-tab { font-size: 10px; letter-spacing: 0.12em; padding-bottom: 12px; }
+      .gallery-collection-desc p { font-size: 1rem; }
 
       .gallery-photos { grid-template-columns: 1fr; grid-auto-rows: auto; gap: 10px; }
       .gallery-photos .gallery-photo,

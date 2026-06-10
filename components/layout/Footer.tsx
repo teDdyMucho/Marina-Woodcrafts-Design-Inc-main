@@ -6,7 +6,7 @@ export function Footer() {
   return (
     <footer>
       <div className="footer-brand">
-        <Image src="/Icon.png" alt="MW" width={30} height={30} className="footer-icon" />
+        <Image src="/Icon.png" alt="MW" width={5400} height={3360} className="footer-icon" />
         <div className="footer-brand-text">
           <span className="footer-name">Marina Woodcrafts</span>
           <span className="footer-name-sub">Design Inc.</span>

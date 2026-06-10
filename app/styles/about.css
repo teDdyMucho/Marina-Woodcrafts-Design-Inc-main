@@ -65,3 +65,140 @@
       color: var(--muted);
       margin-top: 10px;
     }
+
+    /* ─────────────────────────────────────────
+       ABOUT — EXTENDED CONTENT (SEO / GEO / AEO)
+    ───────────────────────────────────────── */
+    .about-block { margin-top: 96px; }
+
+    .about-block-title {
+      font-family: var(--font-playfair), serif;
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 400;
+      line-height: 1.2;
+      color: var(--green);
+    }
+
+    .about-lead {
+      font-size: 1rem;
+      line-height: 1.9;
+      color: var(--muted);
+      margin-top: 18px;
+      max-width: 62ch;
+    }
+
+    /* Services list */
+    .about-services {
+      list-style: none;
+      margin-top: 40px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1px;
+      background: rgba(29,51,40,0.12);
+      border: 1px solid rgba(29,51,40,0.12);
+    }
+    .about-service {
+      background: var(--cream);
+      padding: 30px 32px;
+    }
+    .about-service h3 {
+      font-family: var(--font-playfair), serif;
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: var(--green);
+      margin-bottom: 8px;
+    }
+    .about-service p {
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+    .about-service-link,
+    .about-inline-link {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--green);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(29,51,40,0.3);
+      padding-bottom: 2px;
+      transition: opacity 0.2s;
+    }
+    .about-service-link:hover,
+    .about-inline-link:hover { opacity: 0.6; }
+    .about-inline-link {
+      font-size: inherit;
+      letter-spacing: 0;
+      text-transform: none;
+      font-weight: 500;
+    }
+
+    /* Process steps */
+    .about-steps {
+      list-style: none;
+      margin-top: 44px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 36px;
+    }
+    .about-step-num {
+      display: block;
+      font-family: var(--font-playfair), serif;
+      font-size: 1.4rem;
+      color: rgba(29,51,40,0.25);
+      margin-bottom: 14px;
+    }
+    .about-step-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--green);
+      margin-bottom: 8px;
+    }
+    .about-step p {
+      font-size: 0.88rem;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    /* Values */
+    .about-values {
+      margin-top: 44px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 44px;
+    }
+    .about-value h3 {
+      font-family: var(--font-playfair), serif;
+      font-size: 1.15rem;
+      font-weight: 500;
+      color: var(--green);
+      margin-bottom: 10px;
+    }
+    .about-value p {
+      font-size: 0.9rem;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+
+    /* FAQ */
+    .about-faq { margin-top: 36px; }
+    .about-faq-item {
+      padding: 24px 0;
+      border-top: 1px solid rgba(29,51,40,0.12);
+    }
+    .about-faq-item:last-child { border-bottom: 1px solid rgba(29,51,40,0.12); }
+    .about-faq-q {
+      font-size: 1.02rem;
+      font-weight: 600;
+      color: var(--green);
+      margin-bottom: 10px;
+    }
+    .about-faq-a {
+      font-size: 0.92rem;
+      line-height: 1.85;
+      color: var(--muted);
+      max-width: 70ch;
+    }

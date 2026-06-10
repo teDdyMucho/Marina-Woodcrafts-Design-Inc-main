@@ -90,3 +90,39 @@
       left: -1px;
       cursor: grabbing;
     }
+
+    /* ─────────────────────────────────────────
+       BACK TO TOP BUTTON
+    ───────────────────────────────────────── */
+    .back-to-top {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 400;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 1px solid rgba(245,240,232,0.25);
+      background: rgba(29,51,40,0.92);
+      color: var(--cream);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      transition: opacity 0.3s ease, transform 0.3s ease, background 0.25s ease;
+    }
+    .back-to-top.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .back-to-top:hover { background: var(--green-mid); }
+
+    @media (max-width: 600px) {
+      .back-to-top { bottom: 20px; right: 18px; width: 42px; height: 42px; }
+    }

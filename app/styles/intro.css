@@ -23,16 +23,17 @@
       position: absolute;
       bottom: 32px;
       right: 40px;
-      z-index: 3;
-      background: transparent;
+      z-index: 10; /* above the door images so it stays clickable */
+      background: rgba(255,255,255,0.6);
       border: 1px solid rgba(0,0,0,0.2);
-      color: rgba(0,0,0,0.4);
+      color: rgba(0,0,0,0.45);
       font-family: var(--font-inter), sans-serif;
       font-size: 10px;
       letter-spacing: 0.18em;
       text-transform: uppercase;
       padding: 8px 20px;
       cursor: pointer;
+      pointer-events: auto;
     }
     #intro-skip:hover { opacity: 0.6; }
 
@@ -47,7 +48,10 @@
       justify-content: center;
       overflow: hidden;
       pointer-events: none;
+      opacity: 1;
+      transition: opacity 0.45s ease;
     }
+    #door-overlay.closing { opacity: 0; }
 
     /* flex:1 makes each bar grow to fill exactly the gap between the
        viewport edge and the door image — no fixed heights, no overlap. */
@@ -185,7 +189,9 @@
       background-position: center top;
       pointer-events: none;
       mix-blend-mode: multiply;
-      will-change: background-position;
+      /* `will-change: background-position` was promoting these to their own GPU
+         layer, which left a faint diagonal seam over the dark footer. Removed —
+         the parallax still works via the inline background-position. */
     }
 
     /* small  = farthest  → slowest  (z 5) */

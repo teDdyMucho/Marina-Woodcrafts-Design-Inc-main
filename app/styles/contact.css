@@ -64,10 +64,11 @@
     .form-group { display: flex; flex-direction: column; gap: 8px; }
 
     .form-group label {
-      font-size: 9px;
-      letter-spacing: 0.2em;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: rgba(29,51,40,0.45);
+      color: var(--green);
     }
 
     .form-group input,
@@ -76,20 +77,28 @@
       font-family: var(--font-inter), sans-serif;
       font-size: 0.95rem;
       color: var(--green);
-      background: transparent;
-      border: none;
-      border-bottom: 1px solid rgba(29,51,40,0.22);
-      padding: 10px 0;
+      /* Light fill so the field reads clearly over the speckled background. */
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(29,51,40,0.25);
+      border-radius: 3px;
+      padding: 12px 14px;
       outline: none;
-      transition: border-color 0.25s;
+      transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
       -webkit-appearance: none;
     }
 
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: rgba(29,51,40,0.35); }
+
     .form-group input:focus,
     .form-group textarea:focus,
-    .form-group select:focus { border-color: var(--green); }
+    .form-group select:focus {
+      border-color: var(--green);
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(29,51,40,0.08);
+    }
 
-    .form-group textarea { resize: vertical; min-height: 110px; }
+    .form-group textarea { resize: vertical; min-height: 140px; }
 
     .contact-form .btn { align-self: flex-start; margin-top: 8px; }
 

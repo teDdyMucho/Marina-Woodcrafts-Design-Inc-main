@@ -4,6 +4,10 @@
     footer {
       position: relative;
       z-index: 10;
+      /* Own compositing context so the fixed parallax layers' multiply blend
+         (promoted to its own GPU layer via will-change) can't bleed a faint
+         seam over the dark footer. */
+      isolation: isolate;
       background: var(--green);
       padding: 52px 64px;
       display: flex;

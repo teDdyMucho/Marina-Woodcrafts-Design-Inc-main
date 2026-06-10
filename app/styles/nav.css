@@ -28,8 +28,8 @@
     }
 
     .nav-icon {
-      height: 34px;
-      width: auto;
+      /* Size is set inline on the <Image> (height:34px, width:auto) so the
+         intrinsic aspect ratio is preserved and Next.js stays happy. */
       filter: brightness(0) invert(1);
       opacity: 0.92;
     }
