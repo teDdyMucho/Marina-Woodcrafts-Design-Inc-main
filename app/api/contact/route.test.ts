@@ -28,7 +28,7 @@ describe('POST /api/contact', () => {
     expect(res.status).toBe(400)
   })
 
-  it('forwards valid input to the webhook and returns success', async () => {
+  it('forwards valid input to the webhook (GET + query params) and returns success', async () => {
     const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response(null, { status: 200 })
     )
@@ -37,12 +37,10 @@ describe('POST /api/contact', () => {
     const json = await res.json()
     expect(json.success).toBe(true)
     expect(fetchMock).toHaveBeenCalledTimes(1)
-    const [, init] = fetchMock.mock.calls[0]
-    expect(JSON.parse(init!.body as string)).toMatchObject({
-      name: 'Alice',
-      email: 'a@b.com',
-      message: 'Hello',
-    })
+    const url = new URL(String(fetchMock.mock.calls[0][0]))
+    expect(url.searchParams.get('name')).toBe('Alice')
+    expect(url.searchParams.get('email')).toBe('a@b.com')
+    expect(url.searchParams.get('message')).toBe('Hello')
   })
 
   it('returns 502 when the webhook fails', async () => {

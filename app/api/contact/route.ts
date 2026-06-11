@@ -14,19 +14,17 @@ export async function POST(request: Request) {
   }
 
   // Forward the submission to the webhook server-side (no CORS issues, and the
-  // webhook URL stays out of the client bundle).
+  // webhook URL stays out of the client bundle). The n8n webhook is registered
+  // for GET, so the fields go as query parameters.
   try {
-    const res = await fetch(WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: name.trim(),
-        email: email.trim(),
-        message: message.trim(),
-        submittedAt: new Date().toISOString(),
-        source: 'marinawoodcraft.com/contact',
-      }),
-    })
+    const url = new URL(WEBHOOK_URL)
+    url.searchParams.set('name', name.trim())
+    url.searchParams.set('email', email.trim())
+    url.searchParams.set('message', message.trim())
+    url.searchParams.set('submittedAt', new Date().toISOString())
+    url.searchParams.set('source', 'marinawoodcraft.com/contact')
+
+    const res = await fetch(url, { method: 'GET' })
 
     if (!res.ok) {
       return NextResponse.json(
