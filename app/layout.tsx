@@ -25,7 +25,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://marinawoodcraft.com'),
+  metadataBase: new URL('https://www.marinawoodcrafts.com'),
   title: {
     default: 'Marina Woodcrafts Design Inc. | Custom Cabinetry in Woodland Hills, CA',
     template: '%s | Marina Woodcrafts Design Inc.',
@@ -38,7 +38,7 @@ const localBusinessJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'HomeAndConstructionBusiness',
   name: business.legalName,
-  image: 'https://marinawoodcraft.com/Icon.png',
+  image: 'https://www.marinawoodcrafts.com/Icon.png',
   telephone: business.phone,
   email: business.email,
   address: {
@@ -49,7 +49,7 @@ const localBusinessJsonLd = {
     postalCode: business.address.postalCode,
     addressCountry: business.address.addressCountry,
   },
-  url: 'https://marinawoodcraft.com',
+  url: 'https://www.marinawoodcrafts.com',
   sameAs: business.sameAs,
 }
 

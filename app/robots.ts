@@ -11,6 +11,6 @@ export default function robots(): MetadataRoute.Robots {
       { userAgent: 'Google-Extended', allow: '/' },
       { userAgent: 'CCBot', allow: '/' },
     ],
-    sitemap: 'https://marinawoodcraft.com/sitemap.xml',
+    sitemap: 'https://www.marinawoodcrafts.com/sitemap.xml',
   }
 }

@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     url.searchParams.set('email', email.trim())
     url.searchParams.set('message', message.trim())
     url.searchParams.set('submittedAt', new Date().toISOString())
-    url.searchParams.set('source', 'marinawoodcraft.com/contact')
+    url.searchParams.set('source', 'www.marinawoodcrafts.com/contact')
 
     const res = await fetch(url, { method: 'GET' })
 

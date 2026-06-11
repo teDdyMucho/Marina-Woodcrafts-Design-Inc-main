@@ -38,7 +38,7 @@ export default function BlogPage() {
       description: p.excerpt,
       datePublished: p.date,
       author: { '@type': 'Organization', name: p.author },
-      url: `https://marinawoodcraft.com/blog/${p.slug}`,
+      url: `https://www.marinawoodcrafts.com/blog/${p.slug}`,
     })),
   }
 

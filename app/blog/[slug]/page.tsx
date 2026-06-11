@@ -41,7 +41,7 @@ export default async function BlogPostPage({ params }: Props) {
     '@type': 'BlogPosting',
     headline: post.title,
     description: post.excerpt,
-    image: `https://marinawoodcraft.com${post.heroImage}`,
+    image: `https://www.marinawoodcrafts.com${post.heroImage}`,
     datePublished: post.date,
     dateModified: post.date,
     author: { '@type': 'Organization', name: post.author },
@@ -50,7 +50,7 @@ export default async function BlogPostPage({ params }: Props) {
       name: business.legalName,
       telephone: business.phone,
     },
-    mainEntityOfPage: `https://marinawoodcraft.com/blog/${post.slug}`,
+    mainEntityOfPage: `https://www.marinawoodcrafts.com/blog/${post.slug}`,
   }
 
   const faqJsonLd = {

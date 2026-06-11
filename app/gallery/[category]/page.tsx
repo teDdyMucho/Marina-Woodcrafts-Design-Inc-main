@@ -36,7 +36,7 @@ export default async function CategoryPage({ params }: Props) {
 
   const imageObjects = cat.photos.slice(0, 8).map((photo) => ({
     '@type': 'ImageObject',
-    contentUrl: `https://marinawoodcraft.com${photo.src}`,
+    contentUrl: `https://www.marinawoodcrafts.com${photo.src}`,
     description: photo.alt,
   }))
 

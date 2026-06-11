@@ -3,7 +3,7 @@ import { categories } from '@/lib/gallery'
 import { services } from '@/lib/services'
 import { posts } from '@/lib/blog'
 
-const BASE = 'https://marinawoodcraft.com'
+const BASE = 'https://www.marinawoodcrafts.com'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes: MetadataRoute.Sitemap = [

@@ -54,7 +54,7 @@ export default function ServicesPage() {
         '@type': 'Service',
         name: s.title,
         description: s.summary,
-        url: `https://marinawoodcraft.com/services/${s.slug}`,
+        url: `https://www.marinawoodcrafts.com/services/${s.slug}`,
         serviceType: s.title,
         provider: {
           '@type': 'HomeAndConstructionBusiness',

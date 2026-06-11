@@ -35,7 +35,7 @@ export default function GalleryPage() {
       '@type': 'ImageGallery',
       name: c.name,
       description: c.details.join(' '),
-      url: `https://marinawoodcraft.com/gallery/${c.slug}`,
+      url: `https://www.marinawoodcrafts.com/gallery/${c.slug}`,
       numberOfItems: c.photos.length,
     })),
   }
