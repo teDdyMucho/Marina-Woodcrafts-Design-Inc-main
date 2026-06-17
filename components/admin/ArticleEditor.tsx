@@ -2,24 +2,19 @@
 
 import { useState } from 'react'
 
-export interface DraftSection {
-  heading: string
-  body: string // paragraphs separated by blank lines
-}
-export interface DraftFaq {
-  question: string
-  answer: string
-}
 export interface ArticleDraft {
   title: string
   slug: string
+  url: string
+  category: string
+  readMinutes: string // kept as string for the input; '' = auto from body
+  tags: string[]
   excerpt: string
-  intro: string
-  sections: DraftSection[]
-  faq: DraftFaq[]
-  keywords: string
-  status: string
-  /** Hero image, uploaded as base64 — your workflow stores it and sets the final URL. */
+  body: string // full article; blank line separates paragraphs
+  publishedDate: string // yyyy-mm-dd
+  featured: boolean
+  published: boolean
+  /** Hero image, uploaded as base64 — committed to GitHub on save. */
   heroImageName?: string
   heroImageType?: string
   heroImageData?: string // base64, no data: prefix
@@ -28,12 +23,15 @@ export interface ArticleDraft {
 export const EMPTY_DRAFT: ArticleDraft = {
   title: '',
   slug: '',
+  url: '',
+  category: '',
+  readMinutes: '',
+  tags: [],
   excerpt: '',
-  intro: '',
-  sections: [{ heading: '', body: '' }],
-  faq: [{ question: '', answer: '' }],
-  keywords: '',
-  status: 'draft',
+  body: '',
+  publishedDate: '',
+  featured: false,
+  published: true,
 }
 
 function slugify(s: string) {
@@ -52,6 +50,7 @@ export function ArticleEditor({ initial }: { initial: ArticleDraft }) {
   const [message, setMessage] = useState('')
   const [heroPreview, setHeroPreview] = useState<string | null>(null)
   const [dragging, setDragging] = useState(false)
+  const [tagInput, setTagInput] = useState('')
 
   function set<K extends keyof ArticleDraft>(key: K, value: ArticleDraft[K]) {
     setDraft((d) => ({ ...d, [key]: value }))
@@ -98,21 +97,46 @@ export function ArticleEditor({ initial }: { initial: ArticleDraft }) {
     setDraft((d) => ({ ...d, heroImageName: undefined, heroImageType: undefined, heroImageData: undefined }))
   }
 
+  function addTag() {
+    const t = tagInput.trim()
+    if (!t) return
+    if (!draft.tags.includes(t)) set('tags', [...draft.tags, t])
+    setTagInput('')
+  }
+
+  function onTagKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault()
+      addTag()
+    } else if (e.key === 'Backspace' && !tagInput && draft.tags.length) {
+      set('tags', draft.tags.slice(0, -1))
+    }
+  }
+
+  function removeTag(tag: string) {
+    set('tags', draft.tags.filter((t) => t !== tag))
+  }
+
   async function save(e: React.FormEvent) {
     e.preventDefault()
     setStatus('saving')
     setMessage('')
     try {
       const payload = {
-        ...draft,
-        keywords: draft.keywords.split(',').map((k) => k.trim()).filter(Boolean),
-        sections: draft.sections
-          .filter((s) => s.heading.trim() || s.body.trim())
-          .map((s) => ({
-            heading: s.heading.trim(),
-            paragraphs: s.body.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean),
-          })),
-        faq: draft.faq.filter((f) => f.question.trim() && f.answer.trim()),
+        title: draft.title.trim(),
+        slug: draft.slug.trim(),
+        url: draft.url.trim(),
+        category: draft.category.trim(),
+        readMinutes: draft.readMinutes.trim() ? Number(draft.readMinutes) : undefined,
+        tags: draft.tags,
+        excerpt: draft.excerpt.trim(),
+        body: draft.body,
+        publishedDate: draft.publishedDate,
+        featured: draft.featured,
+        published: draft.published,
+        heroImageName: draft.heroImageName,
+        heroImageType: draft.heroImageType,
+        heroImageData: draft.heroImageData,
       }
       const res = await fetch('/api/admin/articles', {
         method: 'POST',
@@ -134,8 +158,9 @@ export function ArticleEditor({ initial }: { initial: ArticleDraft }) {
 
   return (
     <form className="art-editor" onSubmit={save}>
+      {/* Cover image */}
       <div className="art-field">
-        <label>Cover / hero image</label>
+        <label>Cover image</label>
         <label
           className={`art-dropzone${dragging ? ' dragging' : ''}${heroPreview ? ' has-image' : ''}`}
           onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
@@ -159,7 +184,7 @@ export function ArticleEditor({ initial }: { initial: ArticleDraft }) {
               <span className="art-dropzone-main">
                 Upload cover image — drag &amp; drop or <strong>browse</strong>
               </span>
-              <span className="art-dropzone-hint">JPG, PNG, or WebP</span>
+              <span className="art-dropzone-hint">JPG, PNG, WebP · max 5 MB</span>
             </>
           )}
         </label>
@@ -171,122 +196,107 @@ export function ArticleEditor({ initial }: { initial: ArticleDraft }) {
         )}
       </div>
 
+      {/* Title */}
       <div className="art-field">
         <label htmlFor="art-title">Title</label>
-        <input id="art-title" value={draft.title} onChange={(e) => onTitle(e.target.value)} required />
+        <input id="art-title" placeholder="Post title" value={draft.title} onChange={(e) => onTitle(e.target.value)} required />
       </div>
 
+      {/* Slug */}
+      <div className="art-field">
+        <label htmlFor="art-slug">Slug</label>
+        <input
+          id="art-slug"
+          placeholder="post-url-slug"
+          value={draft.slug}
+          onChange={(e) => { setSlugTouched(true); set('slug', slugify(e.target.value)) }}
+          required
+        />
+        <span className="art-help">Public URL: /blog/{draft.slug || '…'}</span>
+      </div>
+
+      {/* URL (external / reference) */}
+      <div className="art-field">
+        <label htmlFor="art-url">URL</label>
+        <input id="art-url" type="url" placeholder="https://example.com/article" value={draft.url} onChange={(e) => set('url', e.target.value)} />
+        <span className="art-help">External or reference URL saved with this post (optional)</span>
+      </div>
+
+      {/* Category + Read time */}
       <div className="art-row">
         <div className="art-field">
-          <label htmlFor="art-slug">Slug</label>
-          <input
-            id="art-slug"
-            value={draft.slug}
-            onChange={(e) => { setSlugTouched(true); set('slug', slugify(e.target.value)) }}
-            required
-          />
+          <label htmlFor="art-category">Category</label>
+          <input id="art-category" placeholder="e.g. Kitchen Design" value={draft.category} onChange={(e) => set('category', e.target.value)} />
         </div>
         <div className="art-field">
-          <label htmlFor="art-status">Status</label>
-          <select id="art-status" value={draft.status} onChange={(e) => set('status', e.target.value)}>
-            <option value="draft">Draft</option>
-            <option value="review">In Review</option>
-            <option value="scheduled">Scheduled</option>
-            <option value="published">Published</option>
-          </select>
+          <label htmlFor="art-read">Read time</label>
+          <input id="art-read" type="number" min={1} placeholder="8 min read" value={draft.readMinutes} onChange={(e) => set('readMinutes', e.target.value)} />
         </div>
       </div>
 
+      {/* Tags */}
+      <div className="art-field">
+        <label htmlFor="art-tags">Tags</label>
+        <div className="art-tags">
+          {draft.tags.map((t) => (
+            <span className="art-tag" key={t}>
+              {t}
+              <button type="button" onClick={() => removeTag(t)} aria-label={`Remove ${t}`}>×</button>
+            </span>
+          ))}
+          <input
+            id="art-tags"
+            className="art-tag-input"
+            placeholder="Add a tag…"
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyDown={onTagKeyDown}
+            onBlur={addTag}
+          />
+        </div>
+        <span className="art-help">Press Enter or comma to add a tag</span>
+      </div>
+
+      {/* Excerpt */}
       <div className="art-field">
         <label htmlFor="art-excerpt">Excerpt</label>
-        <textarea id="art-excerpt" rows={2} value={draft.excerpt} onChange={(e) => set('excerpt', e.target.value)} required />
+        <textarea id="art-excerpt" rows={2} placeholder="Short summary shown on the blog cards…" value={draft.excerpt} onChange={(e) => set('excerpt', e.target.value)} required />
       </div>
 
+      {/* Body */}
       <div className="art-field">
-        <label htmlFor="art-intro">Intro</label>
-        <textarea id="art-intro" rows={3} value={draft.intro} onChange={(e) => set('intro', e.target.value)} />
+        <label htmlFor="art-body">Body</label>
+        <textarea id="art-body" rows={14} placeholder="Write the full article here. Separate paragraphs with a blank line." value={draft.body} onChange={(e) => set('body', e.target.value)} required />
+        <span className="art-help">Shown on the post page. A blank line starts a new paragraph.</span>
       </div>
 
-      <div className="art-field">
-        <label>Sections</label>
-        {draft.sections.map((s, i) => (
-          <div className="art-block" key={i}>
-            <input
-              placeholder="Section heading"
-              value={s.heading}
-              onChange={(e) => {
-                const sections = [...draft.sections]
-                sections[i] = { ...sections[i], heading: e.target.value }
-                set('sections', sections)
-              }}
-            />
-            <textarea
-              placeholder="Paragraphs (separate with a blank line)"
-              rows={4}
-              value={s.body}
-              onChange={(e) => {
-                const sections = [...draft.sections]
-                sections[i] = { ...sections[i], body: e.target.value }
-                set('sections', sections)
-              }}
-            />
-            {draft.sections.length > 1 && (
-              <button type="button" className="art-remove" onClick={() => set('sections', draft.sections.filter((_, j) => j !== i))}>
-                Remove section
-              </button>
-            )}
-          </div>
-        ))}
-        <button type="button" className="art-add" onClick={() => set('sections', [...draft.sections, { heading: '', body: '' }])}>
-          + Add section
-        </button>
-      </div>
-
-      <div className="art-field">
-        <label>FAQ</label>
-        {draft.faq.map((f, i) => (
-          <div className="art-block" key={i}>
-            <input
-              placeholder="Question"
-              value={f.question}
-              onChange={(e) => {
-                const faq = [...draft.faq]
-                faq[i] = { ...faq[i], question: e.target.value }
-                set('faq', faq)
-              }}
-            />
-            <textarea
-              placeholder="Answer"
-              rows={2}
-              value={f.answer}
-              onChange={(e) => {
-                const faq = [...draft.faq]
-                faq[i] = { ...faq[i], answer: e.target.value }
-                set('faq', faq)
-              }}
-            />
-            {draft.faq.length > 1 && (
-              <button type="button" className="art-remove" onClick={() => set('faq', draft.faq.filter((_, j) => j !== i))}>
-                Remove
-              </button>
-            )}
-          </div>
-        ))}
-        <button type="button" className="art-add" onClick={() => set('faq', [...draft.faq, { question: '', answer: '' }])}>
-          + Add FAQ
-        </button>
-      </div>
-
-      <div className="art-field">
-        <label htmlFor="art-keywords">Keywords (comma-separated)</label>
-        <input id="art-keywords" value={draft.keywords} onChange={(e) => set('keywords', e.target.value)} />
+      {/* Published date + toggles */}
+      <div className="art-publish-row">
+        <div className="art-field art-field-date">
+          <label htmlFor="art-date">Published date</label>
+          <input id="art-date" type="date" value={draft.publishedDate} onChange={(e) => set('publishedDate', e.target.value)} />
+        </div>
+        <div className="art-toggles">
+          <label className="art-toggle">
+            <input type="checkbox" checked={draft.featured} onChange={(e) => set('featured', e.target.checked)} />
+            <span className="art-toggle-track"><span className="art-toggle-knob" /></span>
+            Featured
+          </label>
+          <label className="art-toggle">
+            <input type="checkbox" checked={draft.published} onChange={(e) => set('published', e.target.checked)} />
+            <span className="art-toggle-track"><span className="art-toggle-knob" /></span>
+            Published
+          </label>
+        </div>
       </div>
 
       {message && <p className={`art-msg ${status === 'error' ? 'art-msg-error' : 'art-msg-ok'}`}>{message}</p>}
 
-      <button type="submit" className="btn btn-solid" disabled={status === 'saving'}>
-        {status === 'saving' ? 'Uploading…' : 'Upload article'}
-      </button>
+      <div className="art-submit-row">
+        <button type="submit" className="btn btn-solid" disabled={status === 'saving'}>
+          {status === 'saving' ? 'Creating…' : 'Create post'}
+        </button>
+      </div>
     </form>
   )
 }

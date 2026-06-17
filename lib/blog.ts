@@ -1,13 +1,3 @@
-export interface BlogSection {
-  heading: string
-  paragraphs: string[]
-}
-
-export interface BlogFaq {
-  question: string
-  answer: string
-}
-
 export interface BlogPost {
   slug: string
   title: string
@@ -17,15 +7,18 @@ export interface BlogPost {
   author: string
   heroImage: string
   readMinutes: number
-  keywords: string[]
-  intro: string
-  sections: BlogSection[]
-  faq: BlogFaq[]
+  category: string
+  tags: string[]
+  url: string // external / reference URL (optional, '' when none)
+  body: string // full article; paragraphs separated by blank lines
+  paragraphs: string[] // derived from body, for rendering
+  featured: boolean
+  published: boolean
 }
 
 /**
  * Articles live as JSON files in /content/articles on GitHub, committed by the
- * admin "Upload article" action. The blog reads them straight from GitHub, so a
+ * admin "Create post" action. The blog reads them straight from GitHub, so a
  * new article shows up within ~60s of the commit — no Vercel redeploy needed.
  */
 export const GITHUB_REPO = process.env.GITHUB_REPO ?? 'teDdyMucho/Marina-Woodcrafts-Design-Inc-main'
@@ -46,8 +39,20 @@ function asArray<T>(v: unknown): T[] {
   return Array.isArray(v) ? (v as T[]) : []
 }
 
+/** Split raw body text into paragraphs on blank lines. */
+function toParagraphs(body: string): string[] {
+  return body
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean)
+}
+
 function normalize(raw: Record<string, unknown>): BlogPost | null {
   if (!raw || typeof raw.slug !== 'string' || typeof raw.title !== 'string') return null
+  const body = typeof raw.body === 'string' ? raw.body : ''
+  const tags = asArray<string>(raw.tags).length
+    ? asArray<string>(raw.tags)
+    : asArray<string>(raw.keywords)
   return {
     slug: raw.slug,
     title: raw.title,
@@ -63,10 +68,13 @@ function normalize(raw: Record<string, unknown>): BlogPost | null {
     heroImage:
       typeof raw.heroImage === 'string' && raw.heroImage ? raw.heroImage : '/Background.jpg',
     readMinutes: typeof raw.readMinutes === 'number' ? raw.readMinutes : 4,
-    keywords: asArray<string>(raw.keywords),
-    intro: typeof raw.intro === 'string' ? raw.intro : '',
-    sections: asArray<BlogSection>(raw.sections),
-    faq: asArray<BlogFaq>(raw.faq),
+    category: typeof raw.category === 'string' ? raw.category : '',
+    tags,
+    url: typeof raw.url === 'string' ? raw.url : '',
+    body,
+    paragraphs: toParagraphs(body),
+    featured: raw.featured === true,
+    published: raw.published !== false, // default to published when absent
   }
 }
 
@@ -76,7 +84,12 @@ interface GhEntry {
   download_url: string | null
 }
 
-export async function getPosts(): Promise<BlogPost[]> {
+interface GetPostsOptions {
+  /** Include drafts (published: false). Defaults to false (public site). */
+  includeUnpublished?: boolean
+}
+
+export async function getPosts(opts: GetPostsOptions = {}): Promise<BlogPost[]> {
   let listing: unknown
   try {
     const res = await fetch(
@@ -111,10 +124,14 @@ export async function getPosts(): Promise<BlogPost[]> {
 
   return loaded
     .filter((p): p is BlogPost => Boolean(p))
-    .sort((a, b) => (a.date < b.date ? 1 : -1)) // newest first
+    .filter((p) => opts.includeUnpublished || p.published)
+    .sort((a, b) => {
+      if (a.featured !== b.featured) return a.featured ? -1 : 1 // featured first
+      return a.date < b.date ? 1 : -1 // then newest first
+    })
 }
 
 export async function getPost(slug: string): Promise<BlogPost | undefined> {
-  const all = await getPosts()
+  const all = await getPosts({ includeUnpublished: true })
   return all.find((p) => p.slug === slug)
 }

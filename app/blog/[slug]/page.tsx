@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: post.title,
     description: post.excerpt,
     alternates: { canonical: `/blog/${post.slug}` },
-    keywords: post.keywords,
+    keywords: post.tags,
     openGraph: {
       type: 'article',
       title: post.title,
@@ -40,11 +40,14 @@ export default async function BlogPostPage({ params }: Props) {
     '@type': 'BlogPosting',
     headline: post.title,
     description: post.excerpt,
+    articleBody: post.paragraphs.join('\n\n'),
     image: post.heroImage.startsWith('http')
       ? post.heroImage
       : `https://www.marinawoodcrafts.com${post.heroImage}`,
     datePublished: post.date,
     dateModified: post.date,
+    articleSection: post.category || undefined,
+    keywords: post.tags.length ? post.tags.join(', ') : undefined,
     author: { '@type': 'Organization', name: post.author },
     publisher: {
       '@type': 'HomeAndConstructionBusiness',
@@ -54,31 +57,18 @@ export default async function BlogPostPage({ params }: Props) {
     mainEntityOfPage: `https://www.marinawoodcrafts.com/blog/${post.slug}`,
   }
 
-  const faqJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: post.faq.map((f) => ({
-      '@type': 'Question',
-      name: f.question,
-      acceptedAnswer: { '@type': 'Answer', text: f.answer },
-    })),
-  }
-
   return (
     <main>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
       />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-      />
 
       <article className="section" style={{ paddingTop: '140px' }}>
         <div className="wrap blog-article">
           <Reveal as="p" className="eyebrow">
             <Link href="/blog" className="blog-back">Journal</Link>
+            {post.category ? ` · ${post.category}` : ''}
           </Reveal>
           <Reveal as="h1" className="section-title blog-article-title">{post.title}</Reveal>
           <Reveal as="p" className="blog-article-meta reveal-delay-1">
@@ -97,25 +87,24 @@ export default async function BlogPostPage({ params }: Props) {
           </Reveal>
 
           <div className="blog-article-body">
-            <Reveal as="p" className="blog-article-lead">{post.intro}</Reveal>
-            {post.sections.map((s) => (
-              <Reveal as="section" key={s.heading} className="blog-section">
-                <h2 className="blog-section-title">{s.heading}</h2>
-                {s.paragraphs.map((p, i) => (
-                  <p key={i}>{p}</p>
-                ))}
+            {post.paragraphs.map((p, i) => (
+              <Reveal as="p" key={i} className={i === 0 ? 'blog-article-lead' : undefined}>
+                {p}
               </Reveal>
             ))}
 
-            {post.faq.length > 0 && (
-              <Reveal as="section" className="blog-section">
-                <h2 className="blog-section-title">Frequently Asked Questions</h2>
-                {post.faq.map((f) => (
-                  <div className="blog-faq-item" key={f.question}>
-                    <h3 className="blog-faq-q">{f.question}</h3>
-                    <p className="blog-faq-a">{f.answer}</p>
-                  </div>
+            {post.tags.length > 0 && (
+              <Reveal className="blog-article-tags reveal-delay-1">
+                {post.tags.map((t) => (
+                  <span className="blog-article-tag" key={t}>{t}</span>
                 ))}
+              </Reveal>
+            )}
+
+            {post.url && (
+              <Reveal as="p" className="blog-article-ref">
+                Reference:{' '}
+                <a href={post.url} target="_blank" rel="noopener noreferrer">{post.url}</a>
               </Reveal>
             )}
 

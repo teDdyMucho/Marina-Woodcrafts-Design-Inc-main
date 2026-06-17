@@ -35,13 +35,8 @@ function extFor(name?: string, type?: string): string {
   return 'jpg'
 }
 
-function wordCount(...parts: string[]): number {
-  return parts.join(' ').trim().split(/\s+/).filter(Boolean).length
-}
-
-interface SectionIn {
-  heading?: string
-  paragraphs?: string[]
+function wordCount(text: string): number {
+  return text.trim().split(/\s+/).filter(Boolean).length
 }
 
 /**
@@ -62,11 +57,23 @@ export async function POST(request: Request) {
   const body = (await request.json().catch(() => ({}))) as Record<string, unknown>
   const title = typeof body.title === 'string' ? body.title.trim() : ''
   const excerpt = typeof body.excerpt === 'string' ? body.excerpt.trim() : ''
-  const intro = typeof body.intro === 'string' ? body.intro.trim() : ''
+  const articleBody = typeof body.body === 'string' ? body.body.trim() : ''
   const slug = slugify((typeof body.slug === 'string' && body.slug) || title)
-  const sections = (Array.isArray(body.sections) ? body.sections : []) as SectionIn[]
-  const faq = Array.isArray(body.faq) ? body.faq : []
-  const keywords = Array.isArray(body.keywords) ? body.keywords : []
+  const url = typeof body.url === 'string' ? body.url.trim() : ''
+  const category = typeof body.category === 'string' ? body.category.trim() : ''
+  const tags = Array.isArray(body.tags)
+    ? (body.tags as unknown[]).filter((t): t is string => typeof t === 'string')
+    : []
+  const featured = body.featured === true
+  const published = body.published !== false
+  const publishedDate =
+    typeof body.publishedDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(body.publishedDate)
+      ? body.publishedDate
+      : ''
+  const readMinutesInput =
+    typeof body.readMinutes === 'number' && body.readMinutes > 0
+      ? Math.round(body.readMinutes)
+      : null
   const heroImageName = typeof body.heroImageName === 'string' ? body.heroImageName : undefined
   const heroImageType = typeof body.heroImageType === 'string' ? body.heroImageType : undefined
   const heroImageData = typeof body.heroImageData === 'string' ? body.heroImageData : undefined
@@ -78,20 +85,15 @@ export async function POST(request: Request) {
     )
   }
 
-  // Computed metadata
-  const now = new Date()
-  const date = now.toISOString().slice(0, 10) // yyyy-mm-dd
+  // Date — from the form's "Published date", or today.
+  const date = publishedDate || new Date().toISOString().slice(0, 10)
   const dateLabel = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  }).format(now)
+  }).format(new Date(`${date}T00:00:00`))
   const author = 'Marina Woodcrafts Design Inc.'
-  const allText = [
-    intro,
-    ...sections.flatMap((s) => [s.heading ?? '', ...(s.paragraphs ?? [])]),
-  ]
-  const readMinutes = Math.max(1, Math.round(wordCount(...allText) / 200))
+  const readMinutes = readMinutesInput ?? Math.max(1, Math.round(wordCount(articleBody) / 200))
 
   // Hero image (committed alongside the JSON). Served from the raw GitHub URL so
   // it's live immediately, before any Vercel redeploy.
@@ -118,13 +120,12 @@ export async function POST(request: Request) {
     author,
     heroImage,
     readMinutes,
-    keywords,
-    intro,
-    sections: sections.map((s) => ({
-      heading: s.heading ?? '',
-      paragraphs: Array.isArray(s.paragraphs) ? s.paragraphs : [],
-    })),
-    faq,
+    category,
+    tags,
+    url,
+    body: articleBody,
+    featured,
+    published,
   }
 
   const repo = `${API}/repos/${GITHUB_REPO}`
@@ -212,7 +213,9 @@ export async function POST(request: Request) {
       slug,
       url: `/blog/${slug}`,
       commit: newCommit.sha,
-      message: 'Published to GitHub. It will appear on the blog within about a minute.',
+      message: published
+        ? 'Published to GitHub. It will appear on the blog within about a minute.'
+        : 'Saved as a draft to GitHub (not shown on the public blog).',
     })
   } catch {
     return NextResponse.json(

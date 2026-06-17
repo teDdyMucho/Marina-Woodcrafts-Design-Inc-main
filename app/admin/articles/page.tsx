@@ -25,9 +25,11 @@ export default async function ArticlesPage({
   const { status } = await searchParams
   const active = status ?? 'all'
 
-  // Articles published on the site (from lib/blog) all count as "published".
-  // Drafts/review/scheduled live in your workflow until published.
-  const all = (await getPosts()).map((p) => ({ ...p, status: 'published' as const }))
+  // Includes drafts (published: false) so the admin can see everything.
+  const all = (await getPosts({ includeUnpublished: true })).map((p) => ({
+    ...p,
+    status: p.published ? ('published' as const) : ('draft' as const),
+  }))
   const list = active === 'all' ? all : all.filter((p) => p.status === active)
 
   return (

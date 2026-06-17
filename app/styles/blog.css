@@ -112,6 +112,37 @@
       margin-bottom: 36px;
     }
 
+    /* Body paragraphs (single Body field, split on blank lines) */
+    .blog-article-body > p {
+      font-size: 1.02rem;
+      line-height: 1.9;
+      color: var(--muted);
+    }
+    .blog-article-body > p + p { margin-top: 18px; }
+
+    /* Tag chips below the article */
+    .blog-article-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 36px;
+    }
+    .blog-article-tag {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--green);
+      background: rgba(29,51,40,0.07);
+      border-radius: 999px;
+      padding: 5px 13px;
+    }
+    .blog-article-ref {
+      margin-top: 22px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      word-break: break-word;
+    }
+    .blog-article-ref a { color: var(--green); text-decoration: underline; }
+
     .blog-section { margin-bottom: 36px; }
     .blog-section-title {
       font-family: var(--font-playfair), serif;
