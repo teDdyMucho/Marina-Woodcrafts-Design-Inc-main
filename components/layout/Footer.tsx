@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import Link from 'next/link'
 
 export function Footer() {
   const year = new Date().getFullYear()
@@ -15,6 +16,7 @@ export function Footer() {
       <div className="footer-legal">
         <p className="footer-copy">© {year} Marina Woodcrafts Design Inc. All rights reserved.</p>
         <p className="footer-credit">Website by Paldz</p>
+        <Link href="/admin" className="footer-admin">Admin</Link>
       </div>
     </footer>
   )

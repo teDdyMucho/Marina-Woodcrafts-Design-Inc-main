@@ -2,19 +2,18 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { posts, getPost } from '@/lib/blog'
+import { getPost } from '@/lib/blog'
 import { business } from '@/lib/business'
 import { Reveal } from '@/components/ui/Reveal'
 
 type Props = { params: Promise<{ slug: string }> }
 
-export function generateStaticParams() {
-  return posts.map((p) => ({ slug: p.slug }))
-}
+// Read live from GitHub; refresh within ~60s of a commit (no redeploy needed).
+export const revalidate = 60
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const post = getPost(slug)
+  const post = await getPost(slug)
   if (!post) return {}
   return {
     title: post.title,
@@ -33,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params
-  const post = getPost(slug)
+  const post = await getPost(slug)
   if (!post) notFound()
 
   const articleJsonLd = {
@@ -41,7 +40,9 @@ export default async function BlogPostPage({ params }: Props) {
     '@type': 'BlogPosting',
     headline: post.title,
     description: post.excerpt,
-    image: `https://www.marinawoodcrafts.com${post.heroImage}`,
+    image: post.heroImage.startsWith('http')
+      ? post.heroImage
+      : `https://www.marinawoodcrafts.com${post.heroImage}`,
     datePublished: post.date,
     dateModified: post.date,
     author: { '@type': 'Organization', name: post.author },

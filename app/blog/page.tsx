@@ -1,9 +1,12 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { posts } from '@/lib/blog'
+import { getPosts } from '@/lib/blog'
 import { business } from '@/lib/business'
 import { Reveal } from '@/components/ui/Reveal'
+
+// Read live from GitHub; refresh within ~60s of a commit (no redeploy needed).
+export const revalidate = 60
 
 export const metadata: Metadata = {
   title: 'Blog — Cabinetry & Woodworking Guides',
@@ -24,7 +27,8 @@ export const metadata: Metadata = {
   },
 }
 
-export default function BlogPage() {
+export default async function BlogPage() {
+  const posts = await getPosts()
   const blogJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Blog',
@@ -60,6 +64,12 @@ export default function BlogPage() {
             Practical advice on custom cabinetry, kitchen and bathroom design, wood species, and
             countertops — written by the team at Marina Woodcrafts Design Inc. in Woodland Hills, CA.
           </Reveal>
+
+          {posts.length === 0 && (
+            <Reveal as="p" className="about-lead reveal-delay-2" style={{ marginTop: '40px' }}>
+              New articles are coming soon — check back shortly.
+            </Reveal>
+          )}
 
           <div className="blog-list">
             {posts.map((post, i) => (

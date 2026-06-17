@@ -1,11 +1,14 @@
 import type { MetadataRoute } from 'next'
 import { categories } from '@/lib/gallery'
 import { services } from '@/lib/services'
-import { posts } from '@/lib/blog'
+import { getPosts } from '@/lib/blog'
 
 const BASE = 'https://www.marinawoodcrafts.com'
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export const revalidate = 60
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const posts = await getPosts()
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: BASE, lastModified: new Date(), changeFrequency: 'monthly', priority: 1.0 },
     { url: `${BASE}/about`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
