@@ -1,0 +1,18 @@
+{
+  "slug": "formatting-test",
+  "title": "Formatting Test",
+  "excerpt": "Testing the body formatting parser end to end.",
+  "date": "2026-06-18",
+  "dateLabel": "June 18, 2026",
+  "author": "Marina Woodcrafts Design Inc.",
+  "heroImage": "/Background.jpg",
+  "readMinutes": 3,
+  "category": "Guide",
+  "tags": [
+    "format"
+  ],
+  "url": "",
+  "body": "This is the intro paragraph that should render as the lead.\n\n# Main Heading One\nSome text under the main heading.\n\n## Sub Heading Two\n– First bullet point\n– Second bullet point\n– Third bullet point\n\n—\n\nClosing paragraph after the divider.",
+  "featured": false,
+  "published": true
+}
