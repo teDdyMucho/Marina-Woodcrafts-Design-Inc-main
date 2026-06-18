@@ -224,3 +224,79 @@ export async function POST(request: Request) {
     )
   }
 }
+
+/** Delete a single file from the repo (commits the removal). */
+async function deletePath(repo: string, token: string, path: string, message: string) {
+  const meta = await fetch(`${repo}/contents/${path}?ref=${GITHUB_BRANCH}`, {
+    headers: headers(token),
+    cache: 'no-store',
+  })
+  if (!meta.ok) return false // already gone
+  const sha: string = (await meta.json()).sha
+  const del = await fetch(`${repo}/contents/${path}`, {
+    method: 'DELETE',
+    headers: headers(token),
+    body: JSON.stringify({ message, sha, branch: GITHUB_BRANCH }),
+  })
+  return del.ok
+}
+
+/**
+ * DELETE /api/admin/articles?slug=<slug>
+ * Removes content/articles/<slug>.json (and any public/blog/<slug>.* hero image)
+ * from GitHub. The blog drops the article within ~60s — no redeploy.
+ */
+export async function DELETE(request: Request) {
+  const token = process.env.GITHUB_TOKEN
+  if (!token) {
+    return NextResponse.json({ error: 'Server is missing GITHUB_TOKEN.' }, { status: 500 })
+  }
+
+  const slug = slugify(new URL(request.url).searchParams.get('slug') ?? '')
+  if (!slug) {
+    return NextResponse.json({ error: 'A slug is required.' }, { status: 400 })
+  }
+
+  const repo = `${API}/repos/${GITHUB_REPO}`
+
+  try {
+    const removed = await deletePath(
+      repo,
+      token,
+      `${ARTICLES_DIR}/${slug}.json`,
+      `content: delete article "${slug}"`
+    )
+    if (!removed) {
+      return NextResponse.json({ error: 'Article not found on GitHub.' }, { status: 404 })
+    }
+
+    // Best-effort: remove the hero image(s) that share the slug.
+    try {
+      const list = await fetch(`${repo}/contents/${IMAGE_DIR}?ref=${GITHUB_BRANCH}`, {
+        headers: headers(token),
+        cache: 'no-store',
+      })
+      if (list.ok) {
+        const entries = (await list.json()) as { name: string }[]
+        for (const e of entries) {
+          if (e.name.startsWith(`${slug}.`)) {
+            await deletePath(repo, token, `${IMAGE_DIR}/${e.name}`, `content: delete hero for "${slug}"`)
+          }
+        }
+      }
+    } catch {
+      /* image cleanup is best-effort */
+    }
+
+    return NextResponse.json({
+      ok: true,
+      slug,
+      message: 'Deleted from GitHub. It will drop off the blog within about a minute.',
+    })
+  } catch {
+    return NextResponse.json(
+      { error: 'Could not reach GitHub. Please try again.' },
+      { status: 502 }
+    )
+  }
+}

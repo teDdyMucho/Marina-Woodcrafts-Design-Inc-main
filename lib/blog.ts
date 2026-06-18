@@ -1,3 +1,12 @@
+/** A rendered block parsed from the article body. */
+export type BlogBlock =
+  | { type: 'h2'; text: string } // "# " — main heading
+  | { type: 'h3'; text: string } // "## " — sub-heading
+  | { type: 'h4'; text: string } // "### " — sub-sub-heading
+  | { type: 'ul'; items: string[] } // "– " (en dash) — bullet list
+  | { type: 'hr' } // "—" (em dash) — section divider
+  | { type: 'p'; text: string } // plain paragraph
+
 export interface BlogPost {
   slug: string
   title: string
@@ -10,10 +19,77 @@ export interface BlogPost {
   category: string
   tags: string[]
   url: string // external / reference URL (optional, '' when none)
-  body: string // full article; paragraphs separated by blank lines
-  paragraphs: string[] // derived from body, for rendering
+  body: string // full article; raw text with light formatting markers
+  paragraphs: string[] // plain-text blocks, for JSON-LD / previews
+  blocks: BlogBlock[] // parsed structure, for rendering
   featured: boolean
   published: boolean
+}
+
+/**
+ * Parse the body into renderable blocks using a light syntax:
+ *   "# heading"   -> main heading (h2)
+ *   "## heading"  -> sub-heading (h3)
+ *   "– item"      -> bullet point (en dash U+2013); consecutive lines group
+ *   "—"           -> section divider (em dash U+2014)
+ *   blank line    -> new paragraph
+ */
+export function parseBody(body: string): BlogBlock[] {
+  const blocks: BlogBlock[] = []
+  let para: string[] = []
+  let list: string[] = []
+  const flushPara = () => {
+    if (para.length) {
+      blocks.push({ type: 'p', text: para.join(' ') })
+      para = []
+    }
+  }
+  const flushList = () => {
+    if (list.length) {
+      blocks.push({ type: 'ul', items: list })
+      list = []
+    }
+  }
+  for (const raw of body.split('\n')) {
+    const line = raw.trim()
+    if (!line) {
+      flushPara()
+      flushList()
+      continue
+    }
+    if (line.startsWith('### ')) {
+      flushPara(); flushList()
+      blocks.push({ type: 'h4', text: line.slice(4).trim() })
+      continue
+    }
+    if (line.startsWith('## ')) {
+      flushPara(); flushList()
+      blocks.push({ type: 'h3', text: line.slice(3).trim() })
+      continue
+    }
+    if (line.startsWith('# ')) {
+      flushPara(); flushList()
+      blocks.push({ type: 'h2', text: line.slice(2).trim() })
+      continue
+    }
+    if (/^—/.test(line)) {
+      // em dash — section divider
+      flushPara(); flushList()
+      blocks.push({ type: 'hr' })
+      continue
+    }
+    if (/^–\s?/.test(line)) {
+      // en dash — bullet point
+      flushPara()
+      list.push(line.replace(/^–\s?/, '').trim())
+      continue
+    }
+    flushList()
+    para.push(line)
+  }
+  flushPara()
+  flushList()
+  return blocks
 }
 
 /**
@@ -39,17 +115,17 @@ function asArray<T>(v: unknown): T[] {
   return Array.isArray(v) ? (v as T[]) : []
 }
 
-/** Split raw body text into paragraphs on blank lines. */
-function toParagraphs(body: string): string[] {
-  return body
-    .split(/\n\s*\n/)
-    .map((p) => p.trim())
-    .filter(Boolean)
+/** Plain-text version of the body (markers stripped), for JSON-LD / previews. */
+function toParagraphs(blocks: BlogBlock[]): string[] {
+  return blocks.flatMap((b) =>
+    b.type === 'hr' ? [] : b.type === 'ul' ? b.items : [b.text]
+  )
 }
 
 function normalize(raw: Record<string, unknown>): BlogPost | null {
   if (!raw || typeof raw.slug !== 'string' || typeof raw.title !== 'string') return null
   const body = typeof raw.body === 'string' ? raw.body : ''
+  const blocks = parseBody(body)
   const tags = asArray<string>(raw.tags).length
     ? asArray<string>(raw.tags)
     : asArray<string>(raw.keywords)
@@ -72,7 +148,8 @@ function normalize(raw: Record<string, unknown>): BlogPost | null {
     tags,
     url: typeof raw.url === 'string' ? raw.url : '',
     body,
-    paragraphs: toParagraphs(body),
+    paragraphs: toParagraphs(blocks),
+    blocks,
     featured: raw.featured === true,
     published: raw.published !== false, // default to published when absent
   }

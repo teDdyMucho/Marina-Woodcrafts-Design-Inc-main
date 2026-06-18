@@ -16,9 +16,13 @@ export function SiteChrome() {
   const pathname = usePathname() ?? ''
   if (pathname.startsWith('/admin')) return null
 
+  // Skip the landing-style intro/loading overlay on the blog so articles open
+  // straight to the content (e.g. admin "View" or "Read article" links).
+  const showIntro = !pathname.startsWith('/blog')
+
   return (
     <>
-      <IntroOverlay />
+      {showIntro && <IntroOverlay />}
       <CustomScrollbar />
       <ParallaxLayers />
       <Nav />

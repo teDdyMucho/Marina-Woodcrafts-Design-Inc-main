@@ -65,7 +65,8 @@ export default async function BlogPostPage({ params }: Props) {
       />
 
       <article className="section" style={{ paddingTop: '140px' }}>
-        <div className="wrap blog-article">
+        <div className="wrap">
+         <div className="blog-article">
           <Reveal as="p" className="eyebrow">
             <Link href="/blog" className="blog-back">Journal</Link>
             {post.category ? ` · ${post.category}` : ''}
@@ -87,11 +88,27 @@ export default async function BlogPostPage({ params }: Props) {
           </Reveal>
 
           <div className="blog-article-body">
-            {post.paragraphs.map((p, i) => (
-              <Reveal as="p" key={i} className={i === 0 ? 'blog-article-lead' : undefined}>
-                {p}
-              </Reveal>
-            ))}
+            {(() => {
+              const leadIndex = post.blocks.findIndex((b) => b.type === 'p')
+              return post.blocks.map((b, i) => {
+                if (b.type === 'h2') return <Reveal as="h2" key={i} className="blog-body-h2">{b.text}</Reveal>
+                if (b.type === 'h3') return <Reveal as="h3" key={i} className="blog-body-h3">{b.text}</Reveal>
+                if (b.type === 'h4') return <Reveal as="h4" key={i} className="blog-body-h4">{b.text}</Reveal>
+                if (b.type === 'hr') return <Reveal key={i} className="blog-body-hr" />
+                if (b.type === 'ul') {
+                  return (
+                    <Reveal as="ul" key={i} className="blog-body-ul">
+                      {b.items.map((it, j) => <li key={j}>{it}</li>)}
+                    </Reveal>
+                  )
+                }
+                return (
+                  <Reveal as="p" key={i} className={i === leadIndex ? 'blog-article-lead' : undefined}>
+                    {b.text}
+                  </Reveal>
+                )
+              })
+            })()}
 
             {post.tags.length > 0 && (
               <Reveal className="blog-article-tags reveal-delay-1">
@@ -113,6 +130,7 @@ export default async function BlogPostPage({ params }: Props) {
               <Link href="/contact" className="btn btn-solid">Request a Free Consultation</Link>
             </Reveal>
           </div>
+         </div>
         </div>
       </article>
     </main>

@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { ProgressModal } from './AdminModal'
 
 export interface ArticleDraft {
   title: string
@@ -44,6 +46,7 @@ function slugify(s: string) {
 }
 
 export function ArticleEditor({ initial }: { initial: ArticleDraft }) {
+  const router = useRouter()
   const [draft, setDraft] = useState<ArticleDraft>(initial)
   const [slugTouched, setSlugTouched] = useState(Boolean(initial.slug))
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
@@ -145,11 +148,10 @@ export function ArticleEditor({ initial }: { initial: ArticleDraft }) {
       })
       const json = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(json?.error ?? 'Save failed')
-      setStatus('saved')
-      setMessage(
-        json.message ??
-          'Published to GitHub. It will appear on the blog within about a minute.'
-      )
+      // Success — keep the blocking modal up and move to the list. The modal
+      // unmounts as the new page renders, so it never looks cancelable.
+      router.push('/admin/articles')
+      router.refresh()
     } catch (err) {
       setStatus('error')
       setMessage(err instanceof Error ? err.message : 'Save failed')
@@ -158,6 +160,11 @@ export function ArticleEditor({ initial }: { initial: ArticleDraft }) {
 
   return (
     <form className="art-editor" onSubmit={save}>
+      <ProgressModal
+        open={status === 'saving'}
+        title="Publishing article…"
+        message="Committing to GitHub. Please don't close this window."
+      />
       {/* Cover image */}
       <div className="art-field">
         <label>Cover image</label>
@@ -266,8 +273,10 @@ export function ArticleEditor({ initial }: { initial: ArticleDraft }) {
       {/* Body */}
       <div className="art-field">
         <label htmlFor="art-body">Body</label>
-        <textarea id="art-body" rows={14} placeholder="Write the full article here. Separate paragraphs with a blank line." value={draft.body} onChange={(e) => set('body', e.target.value)} required />
-        <span className="art-help">Shown on the post page. A blank line starts a new paragraph.</span>
+        <textarea id="art-body" rows={14} placeholder={'Write the full article here.\n\n# Heading\n## Sub-heading\n### Smaller heading\n– Bullet point (en dash)\n— Divider line (em dash)\n\nSeparate paragraphs with a blank line.'} value={draft.body} onChange={(e) => set('body', e.target.value)} required />
+        <span className="art-help">
+          Formatting: <strong># </strong>heading · <strong>## </strong>sub-heading · <strong>### </strong>smaller heading · <strong>– </strong>(en dash) bullet · <strong>—</strong> (em dash) divider · blank line = new paragraph.
+        </span>
       </div>
 
       {/* Published date + toggles */}

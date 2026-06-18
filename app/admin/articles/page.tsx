@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { getPosts } from '@/lib/blog'
+import { ArticleListClient } from '@/components/admin/ArticleListClient'
 
 export const revalidate = 30
 
@@ -50,22 +51,15 @@ export default async function ArticlesPage({
       {list.length === 0 ? (
         <p className="admin-note">No articles with this status yet.</p>
       ) : (
-        <ul className="art-list">
-          {list.map((p) => (
-            <li className="art-row-item" key={p.slug}>
-              <div>
-                <h2>{p.title}</h2>
-                <p className="art-row-meta">
-                  {p.dateLabel} · {p.readMinutes} min read · /blog/{p.slug}
-                </p>
-              </div>
-              <div className="art-row-side">
-                <span className="art-badge">{p.status}</span>
-                <Link href={`/blog/${p.slug}`} target="_blank" className="art-view">View →</Link>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <ArticleListClient
+          articles={list.map((p) => ({
+            slug: p.slug,
+            title: p.title,
+            dateLabel: p.dateLabel,
+            readMinutes: p.readMinutes,
+            status: p.status,
+          }))}
+        />
       )}
     </section>
   )
