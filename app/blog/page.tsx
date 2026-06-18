@@ -80,7 +80,7 @@ export default async function BlogPage() {
                 key={post.slug}
                 className={`blog-card${i === 0 ? '' : ' reveal-delay-1'}`}
               >
-                <Link href={`/blog/${post.slug}`} className="blog-card-media">
+                <Link href={`/blog/${post.slug}`} target="_blank" rel="noopener noreferrer" className="blog-card-media">
                   <Image
                     src={post.heroImage}
                     alt={post.title}
@@ -95,10 +95,10 @@ export default async function BlogPage() {
                     {post.dateLabel} · {post.readMinutes} min read
                   </p>
                   <h2 className="blog-card-title">
-                    <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+                    <Link href={`/blog/${post.slug}`} target="_blank" rel="noopener noreferrer">{post.title}</Link>
                   </h2>
                   <p className="blog-card-excerpt">{post.excerpt}</p>
-                  <Link href={`/blog/${post.slug}`} className="blog-card-link">
+                  <Link href={`/blog/${post.slug}`} target="_blank" rel="noopener noreferrer" className="blog-card-link">
                     Read article
                   </Link>
                 </div>
