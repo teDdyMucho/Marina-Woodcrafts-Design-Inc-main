@@ -20,6 +20,8 @@ export interface ArticleDraft {
   heroImageName?: string
   heroImageType?: string
   heroImageData?: string // base64, no data: prefix
+  /** Existing hero image URL (edit mode) — kept if no new image is uploaded. */
+  existingHeroImage?: string
 }
 
 export const EMPTY_DRAFT: ArticleDraft = {
@@ -45,15 +47,19 @@ function slugify(s: string) {
     .replace(/-+/g, '-')
 }
 
-export function ArticleEditor({ initial }: { initial: ArticleDraft }) {
+export function ArticleEditor({ initial, editing = false }: { initial: ArticleDraft; editing?: boolean }) {
   const router = useRouter()
   const [draft, setDraft] = useState<ArticleDraft>(initial)
   const [slugTouched, setSlugTouched] = useState(Boolean(initial.slug))
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [message, setMessage] = useState('')
   const [heroPreview, setHeroPreview] = useState<string | null>(null)
+  const [existingHero, setExistingHero] = useState<string | null>(initial.existingHeroImage ?? null)
   const [dragging, setDragging] = useState(false)
   const [tagInput, setTagInput] = useState('')
+
+  // What shows in the dropzone: a freshly picked image, else the existing one.
+  const previewSrc = heroPreview ?? existingHero
 
   function set<K extends keyof ArticleDraft>(key: K, value: ArticleDraft[K]) {
     setDraft((d) => ({ ...d, [key]: value }))
@@ -97,6 +103,7 @@ export function ArticleEditor({ initial }: { initial: ArticleDraft }) {
 
   function clearHero() {
     setHeroPreview(null)
+    setExistingHero(null)
     setDraft((d) => ({ ...d, heroImageName: undefined, heroImageType: undefined, heroImageData: undefined }))
   }
 
@@ -140,6 +147,7 @@ export function ArticleEditor({ initial }: { initial: ArticleDraft }) {
         heroImageName: draft.heroImageName,
         heroImageType: draft.heroImageType,
         heroImageData: draft.heroImageData,
+        heroImage: existingHero ?? undefined, // keep current image if not replaced
       }
       const res = await fetch('/api/admin/articles', {
         method: 'POST',
@@ -163,23 +171,23 @@ export function ArticleEditor({ initial }: { initial: ArticleDraft }) {
     <form className="art-editor" onSubmit={save}>
       <ProgressModal
         open={status === 'saving'}
-        title="Publishing article…"
+        title={editing ? 'Saving changes…' : 'Publishing article…'}
         message="Committing to GitHub. Please don't close this window."
       />
       {/* Cover image */}
       <div className="art-field">
         <label>Cover image</label>
         <label
-          className={`art-dropzone${dragging ? ' dragging' : ''}${heroPreview ? ' has-image' : ''}`}
+          className={`art-dropzone${dragging ? ' dragging' : ''}${previewSrc ? ' has-image' : ''}`}
           onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
           onDragLeave={(e) => { e.preventDefault(); setDragging(false) }}
           onDrop={onDrop}
         >
           <input type="file" accept="image/*" onChange={onHeroInput} hidden />
-          {heroPreview ? (
+          {previewSrc ? (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={heroPreview} alt="Cover preview" className="art-dropzone-preview" />
+              <img src={previewSrc} alt="Cover preview" className="art-dropzone-preview" />
               <span className="art-dropzone-overlay">Drop or click to replace</span>
             </>
           ) : (
@@ -196,9 +204,9 @@ export function ArticleEditor({ initial }: { initial: ArticleDraft }) {
             </>
           )}
         </label>
-        {draft.heroImageName && (
+        {(draft.heroImageName || existingHero) && (
           <span className="art-hero-name">
-            {draft.heroImageName}
+            {draft.heroImageName ?? 'Current image'}
             <button type="button" className="art-hero-clear" onClick={clearHero}>Remove</button>
           </span>
         )}
@@ -219,8 +227,11 @@ export function ArticleEditor({ initial }: { initial: ArticleDraft }) {
           value={draft.slug}
           onChange={(e) => { setSlugTouched(true); set('slug', slugify(e.target.value)) }}
           required
+          readOnly={editing}
         />
-        <span className="art-help">Public URL: /blog/{draft.slug || '…'}</span>
+        <span className="art-help">
+          Public URL: /blog/{draft.slug || '…'}{editing ? ' · slug can’t change when editing' : ''}
+        </span>
       </div>
 
       {/* URL (external / reference) */}
@@ -304,7 +315,9 @@ export function ArticleEditor({ initial }: { initial: ArticleDraft }) {
 
       <div className="art-submit-row">
         <button type="submit" className="btn btn-solid" disabled={status === 'saving'}>
-          {status === 'saving' ? 'Creating…' : 'Create post'}
+          {status === 'saving'
+            ? editing ? 'Saving…' : 'Creating…'
+            : editing ? 'Save changes' : 'Create post'}
         </button>
       </div>
     </form>

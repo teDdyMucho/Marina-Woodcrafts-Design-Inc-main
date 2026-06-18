@@ -61,6 +61,7 @@ export function ArticleListClient({ articles }: { articles: ArticleRow[] }) {
             <div className="art-row-side">
               <span className="art-badge">{p.status}</span>
               <Link href={`/blog/${p.slug}`} target="_blank" className="art-view">View →</Link>
+              <Link href={`/admin/articles/edit/${p.slug}`} className="art-edit">Edit</Link>
               <button
                 type="button"
                 className="art-delete"

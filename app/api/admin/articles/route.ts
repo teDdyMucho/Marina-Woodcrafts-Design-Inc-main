@@ -85,6 +85,7 @@ export async function POST(request: Request) {
   const heroImageName = typeof body.heroImageName === 'string' ? body.heroImageName : undefined
   const heroImageType = typeof body.heroImageType === 'string' ? body.heroImageType : undefined
   const heroImageData = typeof body.heroImageData === 'string' ? body.heroImageData : undefined
+  const existingHeroImage = typeof body.heroImage === 'string' ? body.heroImage : ''
 
   if (!title || !slug || !excerpt) {
     return NextResponse.json(
@@ -117,6 +118,9 @@ export async function POST(request: Request) {
     imagePath = `${IMAGE_DIR}/${slug}.${ext}`
     imageBase64 = base64
     heroImage = `https://raw.githubusercontent.com/${GITHUB_REPO}/${GITHUB_BRANCH}/${imagePath}`
+  } else if (existingHeroImage) {
+    // Editing without replacing the cover — keep the current image.
+    heroImage = existingHeroImage
   }
 
   const article = {

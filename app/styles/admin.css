@@ -512,6 +512,19 @@
     }
     .art-view { font-size: 0.82rem; font-weight: 600; color: var(--green); text-decoration: none; }
     .art-view:hover { opacity: 0.7; }
+    .art-edit {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--green);
+      text-decoration: none;
+      background: none;
+      border: 1px solid rgba(29,51,40,0.25);
+      border-radius: 6px;
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .art-edit:hover { background: rgba(29,51,40,0.06); }
     .art-delete {
       font-size: 0.82rem;
       font-weight: 600;
