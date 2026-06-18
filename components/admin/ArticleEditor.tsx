@@ -150,6 +150,7 @@ export function ArticleEditor({ initial }: { initial: ArticleDraft }) {
       if (!res.ok) throw new Error(json?.error ?? 'Save failed')
       // Success — keep the blocking modal up and move to the list. The modal
       // unmounts as the new page renders, so it never looks cancelable.
+      window.dispatchEvent(new Event('articles-changed'))
       router.push('/admin/articles')
       router.refresh()
     } catch (err) {

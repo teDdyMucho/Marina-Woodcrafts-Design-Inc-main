@@ -529,11 +529,11 @@
        ADMIN — ARTICLES CALENDAR
     ───────────────────────────────────────── */
     .admin-cal {
-      max-width: 760px;
+      width: 100%;
       background: #f3ede4;
       border: 1px solid rgba(29,51,40,0.1);
       border-radius: 14px;
-      padding: 22px 24px 26px;
+      padding: 24px 28px 30px;
     }
     .admin-cal-head {
       display: flex;
@@ -579,20 +579,23 @@
     }
     .admin-cal-cell {
       position: relative;
-      aspect-ratio: 1 / 1;
+      min-height: 92px;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 9px 11px;
       border: 1px solid rgba(29,51,40,0.1);
-      border-radius: 8px;
+      border-radius: 9px;
       background: #fff;
       color: var(--green);
-      font-size: 0.9rem;
+      font-size: 0.95rem;
+      text-align: left;
       cursor: default;
     }
-    .admin-cal-cell.empty { border: none; background: none; }
+    .admin-cal-daynum { font-weight: 500; }
+    .admin-cal-cell.empty { border: none; background: none; min-height: 0; }
     .admin-cal-cell.has-posts { cursor: pointer; border-color: rgba(29,51,40,0.3); }
     .admin-cal-cell.has-posts:hover { background: rgba(29,51,40,0.05); }
     .admin-cal-cell.selected { background: var(--green); color: #f3ede4; border-color: var(--green); }

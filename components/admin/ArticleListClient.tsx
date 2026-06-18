@@ -36,6 +36,7 @@ export function ArticleListClient({ articles }: { articles: ArticleRow[] }) {
       setRemoved((prev) => new Set(prev).add(slug))
       setTarget(null)
       setDeleting(false)
+      window.dispatchEvent(new Event('articles-changed'))
       router.refresh()
     } catch (e) {
       setDeleting(false)

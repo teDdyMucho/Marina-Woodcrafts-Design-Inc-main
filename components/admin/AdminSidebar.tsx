@@ -100,18 +100,23 @@ export function AdminSidebar() {
   const pathname = usePathname() ?? ''
   const inArticles = pathname.startsWith('/admin/articles')
 
-  // Published article count, fetched live (articles live in GitHub).
+  // Published article count, fetched live (articles live in GitHub). Refetches
+  // on navigation and whenever an article is created/deleted, so it's realtime.
   const [published, setPublished] = useState<number | null>(null)
   useEffect(() => {
     let alive = true
-    fetch('/api/admin/articles/count')
-      .then((r) => (r.ok ? r.json() : { count: 0 }))
-      .then((d) => alive && setPublished(typeof d.count === 'number' ? d.count : 0))
-      .catch(() => alive && setPublished(0))
+    const load = () =>
+      fetch('/api/admin/articles/count', { cache: 'no-store' })
+        .then((r) => (r.ok ? r.json() : { count: 0 }))
+        .then((d) => alive && setPublished(typeof d.count === 'number' ? d.count : 0))
+        .catch(() => alive && setPublished(0))
+    load()
+    window.addEventListener('articles-changed', load)
     return () => {
       alive = false
+      window.removeEventListener('articles-changed', load)
     }
-  }, [])
+  }, [pathname])
 
   // Existing posts on the blog all count as published; the rest live in the workflow.
   const COUNTS: Record<string, number> = {
@@ -160,7 +165,7 @@ export function AdminSidebar() {
         >
           <span className="admin-nav-ico">{ICONS.blog}</span>
           <span style={{ flex: 1 }}>Articles</span>
-          {published !== null && <span className="admin-nav-badge">{published}</span>}
+          {published ? <span className="admin-nav-badge">{published}</span> : null}
           <span className={`admin-nav-chevron${inArticles ? ' open' : ''}`}>›</span>
         </Link>
 
