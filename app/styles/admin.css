@@ -526,6 +526,125 @@
     .art-delete:hover { background: rgba(155,44,44,0.08); }
 
     /* ─────────────────────────────────────────
+       ADMIN — ARTICLES CALENDAR
+    ───────────────────────────────────────── */
+    .admin-cal {
+      max-width: 760px;
+      background: #f3ede4;
+      border: 1px solid rgba(29,51,40,0.1);
+      border-radius: 14px;
+      padding: 22px 24px 26px;
+    }
+    .admin-cal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .admin-cal-title {
+      font-family: var(--font-playfair), serif;
+      font-size: 1.35rem;
+      font-weight: 500;
+      color: var(--green);
+      margin: 0;
+    }
+    .admin-cal-nav {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid rgba(29,51,40,0.2);
+      background: #fff;
+      color: var(--green);
+      font-size: 1.2rem;
+      line-height: 1;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .admin-cal-nav:hover { background: rgba(29,51,40,0.06); }
+
+    .admin-cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+    .admin-cal-weekdays { margin-bottom: 6px; }
+    .admin-cal-weekday {
+      text-align: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 4px 0;
+    }
+    .admin-cal-cell {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      border: 1px solid rgba(29,51,40,0.1);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--green);
+      font-size: 0.9rem;
+      cursor: default;
+    }
+    .admin-cal-cell.empty { border: none; background: none; }
+    .admin-cal-cell.has-posts { cursor: pointer; border-color: rgba(29,51,40,0.3); }
+    .admin-cal-cell.has-posts:hover { background: rgba(29,51,40,0.05); }
+    .admin-cal-cell.selected { background: var(--green); color: #f3ede4; border-color: var(--green); }
+    .admin-cal-dot {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      border-radius: 999px;
+      background: var(--green);
+      color: #f3ede4;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+    .admin-cal-cell.selected .admin-cal-dot { background: #f3ede4; color: var(--green); }
+
+    .admin-cal-day {
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(29,51,40,0.12);
+    }
+    .admin-cal-day h3 {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--green);
+      margin: 0 0 12px;
+    }
+    .admin-cal-day ul { list-style: none; margin: 0; padding: 0; }
+    .admin-cal-day li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px 0;
+      border-bottom: 1px solid rgba(29,51,40,0.08);
+    }
+    .admin-cal-day li a { color: var(--green); text-decoration: none; font-weight: 500; }
+    .admin-cal-day li a:hover { text-decoration: underline; }
+    .admin-cal-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+    .admin-cal-badge.published { background: rgba(21,128,61,0.12); color: #15803d; }
+    .admin-cal-badge.draft { background: rgba(29,51,40,0.1); color: var(--muted); }
+
+    /* ─────────────────────────────────────────
        ADMIN — MODALS (progress + confirm)
     ───────────────────────────────────────── */
     .admin-modal-overlay {

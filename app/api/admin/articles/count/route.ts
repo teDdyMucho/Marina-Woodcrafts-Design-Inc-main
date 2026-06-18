@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 /** GET /api/admin/articles/count — number of published articles (from GitHub). */
 export async function GET() {
   try {
-    const count = (await getPosts()).length
+    const count = (await getPosts({ fresh: true })).length
     return NextResponse.json({ count })
   } catch {
     return NextResponse.json({ count: 0 })

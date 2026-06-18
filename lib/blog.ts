@@ -164,6 +164,15 @@ interface GhEntry {
 interface GetPostsOptions {
   /** Include drafts (published: false). Defaults to false (public site). */
   includeUnpublished?: boolean
+  /** Bypass the cache and read live from GitHub (admin views). */
+  fresh?: boolean
+}
+
+/** Fetch init: live (no-store) for admin, or 60s-revalidate + tag for public. */
+function ghInit(fresh?: boolean): RequestInit {
+  return fresh
+    ? { headers: ghHeaders(), cache: 'no-store' }
+    : { headers: ghHeaders(), next: { revalidate: REVALIDATE, tags: ['articles'] } }
 }
 
 export async function getPosts(opts: GetPostsOptions = {}): Promise<BlogPost[]> {
@@ -171,7 +180,7 @@ export async function getPosts(opts: GetPostsOptions = {}): Promise<BlogPost[]> 
   try {
     const res = await fetch(
       `https://api.github.com/repos/${GITHUB_REPO}/contents/${ARTICLES_DIR}?ref=${GITHUB_BRANCH}`,
-      { headers: ghHeaders(), next: { revalidate: REVALIDATE } }
+      ghInit(opts.fresh)
     )
     if (!res.ok) return [] // folder doesn't exist yet, or rate-limited
     listing = await res.json()
@@ -187,10 +196,7 @@ export async function getPosts(opts: GetPostsOptions = {}): Promise<BlogPost[]> 
   const loaded = await Promise.all(
     files.map(async (f) => {
       try {
-        const res = await fetch(f.download_url as string, {
-          headers: ghHeaders(),
-          next: { revalidate: REVALIDATE },
-        })
+        const res = await fetch(f.download_url as string, ghInit(opts.fresh))
         if (!res.ok) return null
         return normalize(await res.json())
       } catch {
@@ -201,6 +207,7 @@ export async function getPosts(opts: GetPostsOptions = {}): Promise<BlogPost[]> 
 
   return loaded
     .filter((p): p is BlogPost => Boolean(p))
+    // Public site shows every published post immediately (date is just a label).
     .filter((p) => opts.includeUnpublished || p.published)
     .sort((a, b) => {
       if (a.featured !== b.featured) return a.featured ? -1 : 1 // featured first
@@ -211,4 +218,11 @@ export async function getPosts(opts: GetPostsOptions = {}): Promise<BlogPost[]> 
 export async function getPost(slug: string): Promise<BlogPost | undefined> {
   const all = await getPosts({ includeUnpublished: true })
   return all.find((p) => p.slug === slug)
+}
+
+export type PostStatus = 'draft' | 'published'
+
+/** Published toggle OFF -> 'draft' (hidden from blog); ON -> 'published'. */
+export function postStatus(p: { published: boolean }): PostStatus {
+  return p.published ? 'published' : 'draft'
 }

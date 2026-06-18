@@ -1,8 +1,9 @@
 import Link from 'next/link'
-import { getPosts } from '@/lib/blog'
+import { getPosts, postStatus } from '@/lib/blog'
 import { ArticleListClient } from '@/components/admin/ArticleListClient'
 
-export const revalidate = 30
+// Always read live from GitHub so deletes/creates show immediately (no wait).
+export const dynamic = 'force-dynamic'
 
 export const metadata = {
   title: 'Articles — Admin',
@@ -27,9 +28,9 @@ export default async function ArticlesPage({
   const active = status ?? 'all'
 
   // Includes drafts (published: false) so the admin can see everything.
-  const all = (await getPosts({ includeUnpublished: true })).map((p) => ({
+  const all = (await getPosts({ includeUnpublished: true, fresh: true })).map((p) => ({
     ...p,
-    status: p.published ? ('published' as const) : ('draft' as const),
+    status: postStatus(p),
   }))
   const list = active === 'all' ? all : all.filter((p) => p.status === active)
 

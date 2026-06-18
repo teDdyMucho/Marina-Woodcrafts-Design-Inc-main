@@ -1,8 +1,16 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { GITHUB_REPO, GITHUB_BRANCH } from '@/lib/blog'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
+
+/** Drop cached blog data so the public site reflects the change immediately. */
+function refreshBlog(slug: string) {
+  revalidatePath('/blog')
+  revalidatePath(`/blog/${slug}`)
+  revalidatePath('/sitemap.xml')
+}
 
 const API = 'https://api.github.com'
 const ARTICLES_DIR = 'content/articles'
@@ -208,6 +216,8 @@ export async function POST(request: Request) {
       )
     }
 
+    refreshBlog(slug)
+
     return NextResponse.json({
       ok: true,
       slug,
@@ -288,10 +298,12 @@ export async function DELETE(request: Request) {
       /* image cleanup is best-effort */
     }
 
+    refreshBlog(slug)
+
     return NextResponse.json({
       ok: true,
       slug,
-      message: 'Deleted from GitHub. It will drop off the blog within about a minute.',
+      message: 'Deleted from GitHub.',
     })
   } catch {
     return NextResponse.json(

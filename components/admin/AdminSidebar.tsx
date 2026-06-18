@@ -75,6 +75,14 @@ const ICONS = {
       <path d="M19 14l.7 1.8L21.5 16.5l-1.8.7L19 19l-.7-1.8-1.8-.7 1.8-.7z" />
     </Ico>
   ),
+  calendar: (
+    <Ico>
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <line x1="16" y1="2" x2="16" y2="6" />
+      <line x1="8" y1="2" x2="8" y2="6" />
+      <line x1="3" y1="10" x2="21" y2="10" />
+    </Ico>
+  ),
 } as const
 
 const MANAGE: { href: string; label: string; icon: ReactNode; exact?: boolean }[] = [
@@ -85,10 +93,7 @@ const MANAGE: { href: string; label: string; icon: ReactNode; exact?: boolean }[
 const ARTICLE_TABS = [
   { key: 'all', label: 'Overview', href: '/admin/articles' },
   { key: 'draft', label: 'Drafts', href: '/admin/articles?status=draft' },
-  { key: 'review', label: 'In Review', href: '/admin/articles?status=review' },
-  { key: 'scheduled', label: 'Scheduled', href: '/admin/articles?status=scheduled' },
   { key: 'published', label: 'Published', href: '/admin/articles?status=published' },
-  { key: 'retired', label: 'Archive', href: '/admin/articles?status=retired' },
 ]
 
 export function AdminSidebar() {
@@ -167,6 +172,10 @@ export function AdminSidebar() {
                 {COUNTS[t.key] > 0 && <span className="admin-nav-badge">{COUNTS[t.key]}</span>}
               </Link>
             ))}
+            <Link href="/admin/articles/calendar" className="admin-subnav-row">
+              <span className="admin-nav-ico">{ICONS.calendar}</span>
+              Calendar
+            </Link>
             <Link href="/admin/articles/new" className="admin-subnav-row">
               <span className="admin-nav-ico">{ICONS.write}</span>
               Upload article

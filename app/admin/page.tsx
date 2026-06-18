@@ -9,12 +9,12 @@ export const metadata = {
   robots: { index: false, follow: false },
 }
 
-export const revalidate = 30
+export const dynamic = 'force-dynamic'
 
 export default async function AdminDashboard() {
   const submissionsUrl = process.env.NEXT_PUBLIC_ADMIN_SUBMISSIONS_URL
   const galleryPhotos = categories.reduce((sum, c) => sum + c.photos.length, 0)
-  const posts = await getPosts()
+  const posts = await getPosts({ fresh: true })
 
   return (
     <section className="admin-page">

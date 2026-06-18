@@ -18,16 +18,22 @@ export function ArticleListClient({ articles }: { articles: ArticleRow[] }) {
   const [target, setTarget] = useState<ArticleRow | null>(null) // confirm dialog
   const [deleting, setDeleting] = useState(false) // progress modal
   const [error, setError] = useState<string | null>(null)
+  const [removed, setRemoved] = useState<Set<string>>(new Set()) // optimistic
+
+  const visible = articles.filter((p) => !removed.has(p.slug))
 
   async function confirmDelete() {
     if (!target) return
+    const slug = target.slug
     setDeleting(true)
     try {
-      const res = await fetch(`/api/admin/articles?slug=${encodeURIComponent(target.slug)}`, {
+      const res = await fetch(`/api/admin/articles?slug=${encodeURIComponent(slug)}`, {
         method: 'DELETE',
       })
       const json = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(json?.error ?? 'Delete failed')
+      // Drop the row from the UI immediately, then reconcile with the server.
+      setRemoved((prev) => new Set(prev).add(slug))
       setTarget(null)
       setDeleting(false)
       router.refresh()
@@ -43,7 +49,7 @@ export function ArticleListClient({ articles }: { articles: ArticleRow[] }) {
       {error && <p className="art-msg art-msg-error">{error}</p>}
 
       <ul className="art-list">
-        {articles.map((p) => (
+        {visible.map((p) => (
           <li className="art-row-item" key={p.slug}>
             <div>
               <h2>{p.title}</h2>
