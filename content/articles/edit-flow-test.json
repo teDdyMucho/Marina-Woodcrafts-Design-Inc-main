@@ -1,7 +1,7 @@
 {
   "slug": "edit-flow-test",
-  "title": "Edit Flow Test",
-  "excerpt": "orig excerpt",
+  "title": "Edit Flow Test (UPDATED)",
+  "excerpt": "updated excerpt",
   "date": "2026-06-19",
   "dateLabel": "June 19, 2026",
   "author": "Marina Woodcrafts Design Inc.",
@@ -9,10 +9,11 @@
   "readMinutes": 1,
   "category": "Cat",
   "tags": [
-    "a"
+    "a",
+    "b"
   ],
   "url": "",
-  "body": "Original body.",
-  "featured": false,
+  "body": "Updated body content.",
+  "featured": true,
   "published": true
 }
