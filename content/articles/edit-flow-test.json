@@ -1,0 +1,18 @@
+{
+  "slug": "edit-flow-test",
+  "title": "Edit Flow Test",
+  "excerpt": "orig excerpt",
+  "date": "2026-06-19",
+  "dateLabel": "June 19, 2026",
+  "author": "Marina Woodcrafts Design Inc.",
+  "heroImage": "https://raw.githubusercontent.com/teDdyMucho/Marina-Woodcrafts-Design-Inc-main/main/public/blog/edit-flow-test.png",
+  "readMinutes": 1,
+  "category": "Cat",
+  "tags": [
+    "a"
+  ],
+  "url": "",
+  "body": "Original body.",
+  "featured": false,
+  "published": true
+}
