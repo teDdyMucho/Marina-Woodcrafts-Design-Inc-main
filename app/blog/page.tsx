@@ -55,15 +55,17 @@ export default async function BlogPage() {
 
       <section className="section" style={{ paddingTop: '140px' }}>
         <div className="wrap">
-          <Reveal as="p" className="eyebrow">Journal</Reveal>
-          <Reveal as="h1" className="section-title">
-            Guides &amp; ideas<br />for your home.
-          </Reveal>
-          <Reveal className="line-divider" />
-          <Reveal as="p" className="about-lead reveal-delay-1">
-            Practical advice on custom cabinetry, kitchen and bathroom design, wood species, and
-            countertops — written by the team at Marina Woodcrafts Design Inc. in Woodland Hills, CA.
-          </Reveal>
+          <div className="blog-head">
+            <Reveal as="p" className="eyebrow">Journal</Reveal>
+            <Reveal as="h1" className="section-title">
+              Guides &amp; ideas<br />for your home.
+            </Reveal>
+            <Reveal className="line-divider" />
+            <Reveal as="p" className="about-lead reveal-delay-1">
+              Practical advice on custom cabinetry, kitchen and bathroom design, wood species, and
+              countertops — written by the team at Marina Woodcrafts Design Inc. in Woodland Hills, CA.
+            </Reveal>
+          </div>
 
           {posts.length === 0 && (
             <Reveal as="p" className="about-lead reveal-delay-2" style={{ marginTop: '40px' }}>
