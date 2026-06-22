@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { getPost } from '@/lib/blog'
+import { getPost, getPosts } from '@/lib/blog'
 import { business } from '@/lib/business'
 import { Reveal } from '@/components/ui/Reveal'
 
@@ -34,6 +34,12 @@ export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params
   const post = await getPost(slug)
   if (!post) notFound()
+
+  // Other articles, newest first (by date), for the "More articles" grid below.
+  const others = (await getPosts())
+    .filter((p) => p.slug !== post.slug)
+    .sort((a, b) => (a.date < b.date ? 1 : -1))
+    .slice(0, 8)
 
   const articleJsonLd = {
     '@context': 'https://schema.org',
@@ -133,6 +139,32 @@ export default async function BlogPostPage({ params }: Props) {
          </div>
         </div>
       </article>
+
+      {others.length > 0 && (
+        <section className="blog-more">
+          <h2 className="blog-more-title">Latest articles</h2>
+          <div className="blog-more-grid">
+            {others.map((p) => (
+              <Link key={p.slug} href={`/blog/${p.slug}`} className="blog-more-card">
+                <div className="blog-more-media">
+                  <Image
+                    src={p.heroImage}
+                    alt={p.title}
+                    fill
+                    className="blog-more-img"
+                    sizes="(max-width: 560px) 100vw, (max-width: 1000px) 50vw, 300px"
+                  />
+                </div>
+                <h3 className="blog-more-card-title">{p.title}</h3>
+                <p className="blog-more-date">{p.dateLabel}</p>
+              </Link>
+            ))}
+          </div>
+          <div className="blog-more-foot">
+            <Link href="/blog" className="btn btn-outline-dark">All articles</Link>
+          </div>
+        </section>
+      )}
     </main>
   )
 }
