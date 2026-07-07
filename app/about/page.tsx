@@ -58,6 +58,66 @@ const faqs = [
     answer:
       'Timelines depend on scope: most custom kitchens are completed in 3–5 weeks from design sign-off, bathroom vanities in 2–3 weeks, and closet systems in 1–2 weeks.',
   },
+  {
+    question: 'How much do custom kitchen cabinets cost in Woodland Hills?',
+    answer:
+      'Custom kitchen cabinet pricing in Woodland Hills and the greater Los Angeles area depends on kitchen size, wood species, and finishes. As a general guide, entry-level custom kitchens start around $15,000–$25,000, mid-range projects run about $25,000–$45,000, and high-end kitchens with premium woods and specialty finishes can reach $45,000 or more. We provide a free, transparent estimate for your exact space before any work begins.',
+  },
+  {
+    question: 'Are custom cabinets worth it compared to stock cabinets?',
+    answer:
+      'For most homeowners, yes. Stock cabinets are cheaper upfront but come in fixed sizes and often use particle board. Our custom cabinets are built to the exact dimensions of your space from solid hardwoods and quality plywood, so they fit perfectly, make full use of every inch, and last for decades — a better long-term value for your Woodland Hills home.',
+  },
+  {
+    question: 'What is the difference between custom, semi-custom, and stock cabinets?',
+    answer:
+      'Stock cabinets are mass-produced in standard sizes from a catalog. Semi-custom cabinets start from stock sizes but allow some changes to finishes and dimensions. Fully custom cabinets — what we build — are made from scratch to the exact measurements of your space, with your choice of wood species, door style, and hardware. Custom delivers the best fit and quality, especially for kitchens with angled ceilings, islands, or unusual layouts.',
+  },
+  {
+    question: 'Do you also build custom closets, bathroom vanities, and built-ins?',
+    answer:
+      'Yes. In addition to custom kitchen cabinets, we design and build custom bathroom vanities, walk-in and reach-in closet systems, bookcases, entertainment centers, and other built-ins — all handcrafted to fit your space. We also supply and install countertops in granite, quartz, and butcher block.',
+  },
+  {
+    question: 'Do your custom cabinets come with a guarantee?',
+    answer:
+      'Yes. We stand behind our craftsmanship. Because every cabinet is hand-built from solid hardwoods and quality plywood — never particle board — it is made to last. If anything is not right with our workmanship, we make it right. Ask us for the details during your free in-home consultation.',
+  },
+]
+
+// Founder interview — the questions double as natural-language headings (strong
+// for SEO / AI answer engines), and drive the Person structured data below.
+const founder = {
+  name: 'Majid Mandi',
+  role: 'Owner & Founder',
+}
+
+const interview = [
+  {
+    question: "What's your name and role at Marina Woodcrafts?",
+    answer:
+      'I’m Majid Mandi, the owner of Marina Woodcrafts Design Inc. I lead every project personally — from the first measurement to the final installation.',
+  },
+  {
+    question: 'Why did you start Marina Woodcrafts?',
+    answer:
+      'It began with my passion for carpentry. I have always loved working with wood, and I wanted to build a business of my own where I could craft cabinetry the right way and stand behind every piece.',
+  },
+  {
+    question: 'What makes Marina Woodcrafts different from other cabinet makers?',
+    answer:
+      'Excellent customer service and high-quality products. We take the time to understand what each client needs, and we build every cabinet to last — no shortcuts, and no compromise on materials.',
+  },
+  {
+    question: 'What values guide the way you work with clients?',
+    answer:
+      'Honesty, respect, reliability, and professionalism. Those four values guide every conversation, every estimate, and every project we take on.',
+  },
+  {
+    question: 'What do you want every client to feel after working with Marina Woodcrafts?',
+    answer:
+      '100% satisfied — proud of their new space and confident they made the right choice. That is the goal on every single project. Thank you.',
+  },
 ]
 
 const steps = [
@@ -94,6 +154,20 @@ export default function AboutPage() {
     })),
   }
 
+  const founderJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: founder.name,
+    jobTitle: founder.role,
+    description:
+      'Majid Mandi is the owner and founder of Marina Woodcrafts Design Inc., a custom cabinetry and woodworking company in Woodland Hills, CA. Driven by a lifelong passion for carpentry, he leads every project with a focus on honesty, quality, and 100% client satisfaction.',
+    knowsAbout: ['Custom cabinetry', 'Carpentry', 'Woodworking', 'Kitchen cabinets'],
+    worksFor: {
+      '@type': 'HomeAndConstructionBusiness',
+      name: business.legalName,
+    },
+  }
+
   const aboutJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'AboutPage',
@@ -105,6 +179,7 @@ export default function AboutPage() {
       name: business.legalName,
       telephone: business.phone,
       email: business.email,
+      founder: { '@type': 'Person', name: founder.name, jobTitle: founder.role },
       areaServed: ['Woodland Hills', 'San Fernando Valley', 'Greater Los Angeles, CA'],
       address: {
         '@type': 'PostalAddress',
@@ -133,6 +208,10 @@ export default function AboutPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(founderJsonLd) }}
       />
 
       <section id="about" className="section" style={{ paddingTop: '140px' }}>
@@ -182,6 +261,36 @@ export default function AboutPage() {
                 <div className="stat-label">{stat.label}</div>
               </Reveal>
             ))}
+          </div>
+
+          {/* Meet the Founder */}
+          <div className="about-block">
+            <Reveal as="h2" className="about-block-title">
+              Meet the Founder
+            </Reveal>
+            <Reveal as="p" className="about-lead reveal-delay-1">
+              Marina Woodcrafts Design Inc. is led by owner and founder{' '}
+              <strong>{founder.name}</strong> — a craftsman whose lifelong passion for carpentry is
+              behind every custom cabinet, vanity, and built-in we make.
+            </Reveal>
+            <div className="about-founder">
+              <div className="about-founder-card">
+                <span className="about-founder-name">{founder.name}</span>
+                <span className="about-founder-role">{founder.role}</span>
+              </div>
+              <div className="about-interview">
+                {interview.map((item, i) => (
+                  <Reveal
+                    as="div"
+                    key={item.question}
+                    className={`about-faq-item${i === 0 ? '' : ' reveal-delay-1'}`}
+                  >
+                    <h3 className="about-faq-q">{item.question}</h3>
+                    <p className="about-faq-a">{item.answer}</p>
+                  </Reveal>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Process */}
