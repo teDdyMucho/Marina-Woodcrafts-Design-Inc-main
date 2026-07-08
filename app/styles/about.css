@@ -242,8 +242,15 @@
       text-transform: uppercase;
       opacity: 0.82;
     }
-    .about-interview .about-faq-item:first-child { border-top: none; padding-top: 0; }
-    .about-interview .about-faq-item:last-child { border-bottom: none; }
+    .about-interview {
+      background: rgba(255, 255, 255, 0.62);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      border-radius: 14px;
+      padding: 12px 32px;
+    }
+    .about-interview .about-faq-item:first-child { border-top: none; padding-top: 24px; }
+    .about-interview .about-faq-item:last-child { border-bottom: none; padding-bottom: 24px; }
 
     @media (max-width: 800px) {
       .about-founder { grid-template-columns: 1fr; gap: 24px; }
