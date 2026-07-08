@@ -222,6 +222,13 @@
       position: sticky;
       top: 120px;
     }
+    .about-founder-photo {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      display: block;
+    }
     .about-founder-name {
       font-family: var(--font-playfair), serif;
       font-size: 1.55rem;
@@ -242,10 +249,20 @@
       .about-founder { grid-template-columns: 1fr; gap: 24px; }
       .about-founder-card {
         position: static;
-        flex-direction: row;
-        align-items: baseline;
-        gap: 14px;
+        display: grid;
+        grid-template-columns: 96px 1fr;
+        grid-template-rows: auto auto;
+        column-gap: 16px;
+        row-gap: 2px;
+        align-items: center;
         padding: 18px 22px;
       }
-      .about-founder-name { font-size: 1.3rem; }
+      .about-founder-photo {
+        grid-row: 1 / span 2;
+        width: 96px;
+        margin-bottom: 0;
+        border-radius: 8px;
+      }
+      .about-founder-name { font-size: 1.3rem; align-self: end; }
+      .about-founder-role { align-self: start; }
     }

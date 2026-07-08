@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { Reveal } from '@/components/ui/Reveal'
 import { business } from '@/lib/business'
@@ -90,33 +91,34 @@ const faqs = [
 const founder = {
   name: 'Majid Mandi',
   role: 'Owner & Founder',
+  photo: '/Our%20Story/profile.png',
 }
 
 const interview = [
   {
-    question: "What's your name and role at Marina Woodcrafts?",
+    question: 'Who is the owner of Marina Woodcrafts Design Inc.?',
     answer:
-      'I’m Majid Mandi, the owner of Marina Woodcrafts Design Inc. I lead every project personally — from the first measurement to the final installation.',
+      'I’m Majid Mandi, the owner and founder of Marina Woodcrafts Design Inc. in Woodland Hills, California. I’m personally involved in every custom cabinetry project we take on — from the first in-home measurement to the final installation.',
   },
   {
     question: 'Why did you start Marina Woodcrafts?',
     answer:
-      'It began with my passion for carpentry. I have always loved working with wood, and I wanted to build a business of my own where I could craft cabinetry the right way and stand behind every piece.',
+      'It started with my passion for carpentry. I’ve spent my career working with wood, and I founded Marina Woodcrafts to build custom cabinets, vanities, and built-ins the right way — handcrafted, made to measure, and built to last — for homeowners across the greater Los Angeles area.',
   },
   {
-    question: 'What makes Marina Woodcrafts different from other cabinet makers?',
+    question: 'What makes Marina Woodcrafts different from other cabinet makers in Los Angeles?',
     answer:
-      'Excellent customer service and high-quality products. We take the time to understand what each client needs, and we build every cabinet to last — no shortcuts, and no compromise on materials.',
+      'Two things: excellent customer service and high-quality products. We take the time to listen and understand exactly what each client needs, then build every piece from solid hardwoods and quality plywood — no shortcuts, no particle board, and no compromise on materials or craftsmanship.',
   },
   {
     question: 'What values guide the way you work with clients?',
     answer:
-      'Honesty, respect, reliability, and professionalism. Those four values guide every conversation, every estimate, and every project we take on.',
+      'Honesty, respect, reliability, and professionalism. Those four values shape every conversation, every estimate, and every project — from a single bathroom vanity to a complete custom kitchen. When we give you a price and a timeline, we stand behind both.',
   },
   {
     question: 'What do you want every client to feel after working with Marina Woodcrafts?',
     answer:
-      '100% satisfied — proud of their new space and confident they made the right choice. That is the goal on every single project. Thank you.',
+      '100% satisfied. I want every client to be proud of their new space and confident they made the right choice. That’s the standard we hold ourselves to on every single project — and it’s why so much of our work comes from repeat clients and referrals.',
   },
 ]
 
@@ -159,6 +161,7 @@ export default function AboutPage() {
     '@type': 'Person',
     name: founder.name,
     jobTitle: founder.role,
+    image: `https://marinawoodcraft.com${founder.photo}`,
     description:
       'Majid Mandi is the owner and founder of Marina Woodcrafts Design Inc., a custom cabinetry and woodworking company in Woodland Hills, CA. Driven by a lifelong passion for carpentry, he leads every project with a focus on honesty, quality, and 100% client satisfaction.',
     knowsAbout: ['Custom cabinetry', 'Carpentry', 'Woodworking', 'Kitchen cabinets'],
@@ -275,6 +278,14 @@ export default function AboutPage() {
             </Reveal>
             <div className="about-founder">
               <div className="about-founder-card">
+                <Image
+                  src={founder.photo}
+                  alt={`${founder.name}, ${founder.role} of Marina Woodcrafts Design Inc.`}
+                  width={1086}
+                  height={1448}
+                  className="about-founder-photo"
+                  sizes="(max-width: 800px) 96px, 250px"
+                />
                 <span className="about-founder-name">{founder.name}</span>
                 <span className="about-founder-role">{founder.role}</span>
               </div>
